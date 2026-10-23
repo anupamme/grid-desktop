@@ -1,10 +1,10 @@
 import St from 'gi://St';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 import Rsvg from 'gi://Rsvg';
 
 import {
     resolveWidgetForegroundColor,
-    cssColorToRgba,
     CAIRO_OPERATOR_CLEAR,
     CAIRO_OPERATOR_OVER,
 } from '../utils/widgetUtils.js';
@@ -15,7 +15,20 @@ import {
 import { isActorDestroyed } from '../utils/actorLifecycle.js';
 import { LAVA_THEMES } from '../utils/lavaThemes.js';
 
-const BORDER_ALPHA = 0.14;
+/**
+ * Segédfüggvény SVG fájlok egyszerű beolvasásához az assets mappából.
+ */
+
+function getAssetPath(filename) {
+    try {
+        const currentFilePath = Gio.File.new_for_uri(import.meta.url).get_path();
+        const currentDir = GLib.path_get_dirname(currentFilePath);
+        return GLib.build_filenamev([currentDir, '..', 'assets', 'lavalamp', filename]);
+    } catch (e) {
+        console.warn('LavaLamp: Hiba az útvonal lekérésekor:', e.message);
+        return null;
+    }
+}
 
 export function createLavaLampNode(config, width, height, xPosition, yPosition) {
     const textColor = resolveWidgetForegroundColor(config);
@@ -34,17 +47,56 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
     });
     container.add_child(drawingArea);
 
-    // Cseppek állapota szinuszos simítással
+    // Assetek előre betöltése (egyszer, inicializáláskor)
+    // 1. Üveg (ebből vesszük a vágómaszkot)
+    // 2. Fém váz
+    // 3. Fénycsillanás
+    const glassPathData = 'M 72,70 C 90,66 110,66 128,70 C 144,145 158,205 158,225 C 158,242 144,250 136,268 C 112,272 85,272 60,268 C 52,250 42,242 42,225 C 42,205 56,145 72,70 Z';
+    try {
+        const glassPath = getAssetPath('glass.svg');
+        if (glassPath && GLib.file_test(glassPath, GLib.FileTest.EXISTS)) {
+            const glassFile = Gio.File.new_for_path(glassPath);
+            const [ok, contents] = glassFile.load_contents(null);
+            if (ok) {
+                const text = new TextDecoder().decode(contents);
+                const match = text.match(/d="([^"]+)"/);
+                if (match && match[1]) {
+                    glassPathData = match[1];
+                }
+            }
+        }
+    } catch (e) {
+        console.warn(`[LavaLamp] Nem sikerült beolvasni a glass.svg-t: ${e.message}`);
+    }   
+
+    // 2. Fém váz és Csillanás betöltése
+    let lampHandle = null;
+    let glintHandle = null;
+    try {
+        const lampPath = getAssetPath('lamp.svg');
+        if (lampPath && GLib.file_test(lampPath, GLib.FileTest.EXISTS)) {
+            lampHandle = Rsvg.Handle.new_from_file(lampPath);
+        }
+
+        const glintPath = getAssetPath('glint.svg');
+        if (glintPath && GLib.file_test(glintPath, GLib.FileTest.EXISTS)) {
+            glintHandle = Rsvg.Handle.new_from_file(glintPath);
+        }
+    } catch (e) {
+        console.error(`[LavaLamp] Hiba a Handle betöltésekor: ${e.message}`);
+    }
+
+    // Cseppek állapota - az üveg formájához igazított x és y határok
     const blobs = [
-        // 0: Alsó massza
-        { x: 100, y: 390, r: 65, baseR: 65, phase: 0 },
-        // 1-4: Lebegő cseppek (fix 200x400-as virtuális koordinátákban)
-        { x: 95,  y: 330, r: 35, baseR: 35, yMin: 60,  yMax: 350, speed: 0.0032, progress: 0.5, phase: 0.2 },
-        { x: 110, y: 240, r: 28, baseR: 28, yMin: 80,  yMax: 360, speed: 0.0042, progress: 2.1, phase: 1.5 },
-        { x: 85,  y: 150, r: 38, baseR: 38, yMin: 50,  yMax: 330, speed: 0.0028, progress: 4.2, phase: 3.1 },
-        { x: 115, y: 90,  r: 25, baseR: 25, yMin: 90,  yMax: 340, speed: 0.0050, progress: 5.6, phase: 4.2 },
-        // 5: Felső hűvös massza
-        { x: 100, y: 10,  r: 45, baseR: 45, phase: 2.0 },
+        // 0: Alsó massza (kicsit mélyebben az új alsó maszkhoz)
+        { x: 100, y: 250, r: 42, baseR: 42, phase: 0 },
+        // 1-4: Lebegő cseppek (yMin megnövelve, hogy a kupak alatt ne lapuljanak el)
+        { x: 95,  y: 220, r: 24, baseR: 24, yMin: 90,  yMax: 240, speed: 0.0032, progress: 0.5, phase: 0.2 },
+        { x: 105, y: 180, r: 20, baseR: 20, yMin: 95,  yMax: 245, speed: 0.0042, progress: 2.1, phase: 1.5 },
+        { x: 90,  y: 140, r: 25, baseR: 25, yMin: 85,  yMax: 235, speed: 0.0028, progress: 4.2, phase: 3.1 },
+        { x: 110, y: 110, r: 18, baseR: 18, yMin: 90,  yMax: 240, speed: 0.0050, progress: 5.6, phase: 4.2 },
+        // 5: Felső massza
+        { x: 100, y: 74,  r: 26, baseR: 26, phase: 2.0 },
     ];
 
     const rgbHex = (rgb) => {
@@ -70,17 +122,19 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
         ctx.paint();
         ctx.setOperator(CAIRO_OPERATOR_OVER);
 
-        // Dinamikus SVG generálása a Gooey szűrővel
+        // Dinamikus buborékok generálása
         const circlesSvg = blobs.map(b => 
             `<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${b.r.toFixed(1)}" fill="${lavaColorHex}" />`
         ).join('\n');
 
-        // A lényeg: a <filter id="goo"> feGaussianBlur + feColorMatrix!
+        // SVG összeállítása:
+        // 1. glassClip: a glass.svg belső formája
+        // 2. A buborékok szigorúan ezen a clip-pathen belül renderelődnek
         const svgData = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" width="${w}" height="${h}">
             <defs>
                 <filter id="goo">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur" />
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
                     <feColorMatrix in="blur" mode="matrix" 
                         values="1 0 0 0 0  
                                 0 1 0 0 0  
@@ -89,23 +143,20 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
                     <feComposite in="SourceGraphic" in2="goo" operator="atop" />
                 </filter>
                 <linearGradient id="bgGlow" x1="0" y1="1" x2="0" y2="0">
-                    <stop offset="0%" stop-color="${glowColorHex}" stop-opacity="0.45" />
-                    <stop offset="70%" stop-color="${glowColorHex}" stop-opacity="0.0" />
+                    <stop offset="0%" stop-color="${glowColorHex}" stop-opacity="0.5" />
+                    <stop offset="80%" stop-color="${glowColorHex}" stop-opacity="0.0" />
                 </linearGradient>
 
-                <!-- Lekerekített vágómaszk a widget arányaihoz (rx="24" a 200x400-as viewBox-ban megfelel kb. 12-14px valós rádiusznak) -->
-                <clipPath id="roundedClip">
-                    <rect width="200" height="400" rx="24" ry="24" />
+                <!-- VÁGÓMASZK: közvetlenül az üveg formájára zárjuk a lávát -->
+                <clipPath id="glassClip">
+                    <path d="${glassPathData}" />
                 </clipPath>
             </defs>
 
-            <!-- A teljes tartalmat maszkoljuk a lekerekített formára -->
-            <g clip-path="url(#roundedClip)">
-                <!-- Háttér és alsó fényszál meleg derítése -->
-                <rect width="200" height="400" fill="${bgColorHex}" />
+            <!-- Csak az üveg belsejébe rajzolunk -->
+            <g clip-path="url(#glassClip)">
+                <rect width="200" height="400" fill="${bgColorHex}" opacity="0.3" />
                 <rect width="200" height="400" fill="url(#bgGlow)" />
-
-                <!-- Morfolódó láva réteg -->
                 <g filter="url(#goo)">
                     ${circlesSvg}
                 </g>
@@ -113,19 +164,39 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
         </svg>
         `;
 
+        const viewport = new Rsvg.Rectangle({ x: 0, y: 0, width: w, height: h });
+
         try {
-            const bytes = new GLib.Bytes(new TextEncoder().encode(svgData));
-            const handle = Rsvg.Handle.new_from_bytes_available(bytes);
-            
-            // Rsvg skálázása a Cairo felület méretére
-            const viewport = new Rsvg.Rectangle({ x: 0, y: 0, width: w, height: h });
-            handle.render_document(ctx, viewport);
+            // 1. RÉTEG: Dinamikus láva buborékok a maszkon belül
+            const svgBytes = new TextEncoder().encode(svgData);
+            const lavaHandle = Rsvg.Handle.new_from_data(svgBytes);
+
+            // Megjelenítés (modern render_document vagy cairo fallback)
+            if (lavaHandle.render_document) {
+                lavaHandle.render_document(ctx, viewport);
+            } else {
+                lavaHandle.render_cairo(ctx);
+            }
+
+            // 2. RÉTEG: Fém váz (lamp.svg)
+            if (lampHandle) {
+                if (lampHandle.render_document) {
+                    lampHandle.render_document(ctx, viewport);
+                } else {
+                    lampHandle.render_cairo(ctx);
+                }
+            }
+
+            // 3. RÉTEG: Csillanás (glint.svg) legfelül
+            if (glintHandle) {
+                if (glintHandle.render_document) {
+                    glintHandle.render_document(ctx, viewport);
+                } else {
+                    glintHandle.render_cairo(ctx);
+                }
+            }
         } catch (e) {
-            // Fallback régebbi librsvg hívásra
-            try {
-                const handle = Rsvg.Handle.new_from_data(new TextEncoder().encode(svgData));
-                handle.render_cairo(ctx);
-            } catch (err) {}
+            console.error(`[LavaLamp] Render hiba: ${e.message}`);
         }
 
         ctx.$dispose();
@@ -134,7 +205,7 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
     let lastTime = GLib.get_monotonic_time() / 1000.0;
     let isDisposed = false;
 
-    // Időzítő (30 FPS)
+    // Időzítő (30 FPS)[cite: 5]
     const timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 33, () => {
         if (isDisposed || isActorDestroyed(container) || isActorDestroyed(drawingArea)) {
             return GLib.SOURCE_REMOVE;
@@ -145,22 +216,23 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
         lastTime = now;
 
         // Alsó massza finom lélegzése
-        blobs[0].r = blobs[0].baseR + Math.sin(now * 0.0008) * 3.0;
+        blobs[0].r = blobs[0].baseR + Math.sin(now * 0.0008) * 2.5;
 
         for (let i = 1; i <= 4; i++) {
             const b = blobs[i];
             b.progress += b.speed * dt;
 
-            // Szinuszos sima fel-le lebegés
+            // Szinuszos fel-le lebegés
             const t = (1.0 - Math.cos(b.progress)) * 0.5;
             b.y = b.yMin + t * (b.yMax - b.yMin);
 
-            // Tágulás és zsugorodás
+            // Méretváltozás
             b.r = b.baseR * (0.92 + t * 0.20);
 
-            // Ringatózás oldalra
+            // Ringatózás: az üveg hasánál (középen) szélesebb kilengés, alul-felül szűkebb
+            const spread = (b.y > 140 && b.y < 280) ? 18 : 8;
             b.phase += 0.004 * dt;
-            b.x = 100 + Math.sin(b.phase) * 25;
+            b.x = 100 + Math.sin(b.phase) * spread;
         }
 
         drawingArea.queue_repaint();

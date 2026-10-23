@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="200"
+   height="400"
+   id="svg2"
+   version="1.0"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs4">
+    <filter
+       id="filter4162"
+       x="-2.1505763"
+       width="5.3011525"
+       y="-0.20878358"
+       height="1.4175672">
+      <feGaussianBlur
+         stdDeviation="2.1775582"
+         id="feGaussianBlur4164" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer2"
+     transform="translate(154.32364,-268.75839)">
+    <path
+       id="path4060"
+       d="m -80.629481,371.10476 3.03046,-25.75889"
+       style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4162)" />
+  </g>
+</svg>
