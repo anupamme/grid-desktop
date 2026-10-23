@@ -56,7 +56,7 @@ class MailMonitorEngine {
             try {
                 callback(data);
             } catch (err) {
-                console.error('MailEngine subscriber hiba:', err);
+                console.error('MailEngine subscriber error:', err);
             }
         }
     }
@@ -103,15 +103,15 @@ class MailMonitorEngine {
                             error: false,
                         });
                     } else {
-                        console.warn('MailEngine: Python szkript hibával tért vissza:', stdout);
+                        console.warn('MailEngine: Python script returned an error:', stdout);
                     }
                 } catch (err) {
-                    console.warn('MailEngine: Kimenet feldolgozási hiba:', err.message);
+                    console.warn('MailEngine: Output processing error:', err.message);
                 }
             });
         } catch (e) {
             this._isFetching = false;
-            console.warn('MailEngine: Subprocess indítási hiba:', e.message);
+            console.warn('MailEngine: Subprocess startup error:', e.message);
         }
     }
 }

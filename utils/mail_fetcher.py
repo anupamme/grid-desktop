@@ -43,7 +43,7 @@ def fetch_unseen_with_password(host, port, use_ssl, user, password):
             if len(parts) > 1:
                 return int(parts[1].strip().split(')')[0])
     except Exception as e:
-        sys.stderr.write(f"IMAP hiba ({user}@{host}): {e}\n")
+        sys.stderr.write(f"IMAP error ({user}@{host}): {e}\n")
     finally:
         if client:
             _quick_close(client)
@@ -86,7 +86,7 @@ def process_account(acc):
             token = oauth2.call_get_access_token_sync(None)[0]
             unread = fetch_unseen_with_xoauth2('imap.gmail.com', 993, True, user_id, token)
         except Exception as e:
-            sys.stderr.write(f"Google token hiba ({user_id}): {e}\n")
+            sys.stderr.write(f"Google token error ({user_id}): {e}\n")
 
     # 2. Szabványos IMAP fiók
     elif mail_props:
@@ -101,7 +101,7 @@ def process_account(acc):
                 if password and imap_host:
                     unread = fetch_unseen_with_password(imap_host, imap_port, use_ssl, imap_user, password)
             except Exception as e:
-                sys.stderr.write(f"Jelszó lekérési hiba ({user_id}): {e}\n")
+                sys.stderr.write(f"Password retrieval error ({user_id}): {e}\n")
 
     return {
         "id": account.props.id,
@@ -128,7 +128,7 @@ def main():
                 total += item["unread"]
 
     except Exception as err:
-        sys.stderr.write(f"Fő hiba: {err}\n")
+        sys.stderr.write(f"Error: {err}\n")
 
     print(json.dumps({"unreadTotal": total, "accounts": results}))
 

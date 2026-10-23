@@ -197,7 +197,7 @@ export function createMailGoaNode(config, width, height, xPosition, yPosition) {
 
         if (lastAccounts.length === 0) {
             const emptyLabel = new St.Label({
-                text: 'Nincs elérhető fiók',
+                text: 'No account available',
                 style: `${fontCss}color: ${textColor}; font-size: ${deviceFontSize}px; opacity: ${SECONDARY_OPACITY};`,
                 y_align: Clutter.ActorAlign.CENTER,
                 x_align: Clutter.ActorAlign.CENTER,
