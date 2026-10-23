@@ -1,6 +1,6 @@
 import { isWideMusicLayout } from '../utils/widgetUtils.js';
 import { LAVA_THEMES } from '../utils/lavaThemes.js';
-import { addMoonWidget } from './widgetAdders.js';
+
 
 export const STORE_WIDGETS = Object.freeze({
     weatherStandard: {

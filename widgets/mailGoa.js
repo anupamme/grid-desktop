@@ -119,6 +119,10 @@ export function createMailGoaNode(config, width, height, xPosition, yPosition) {
         const unsubscribe = mailEngine.subscribe((data) => {
             if (isActorDestroyed(container)) return;
             unreadCountLabel.set_text(`${data.unreadTotal}`);
+            if (data.error && data.missingDep) {
+                subLabel.set_text('MISSING');
+                subLabel.style += ' color: #e62d42; opacity: 1.0; font-weight: bold;';
+            }
         });
 
         registerWidgetCleanup(container, () => unsubscribe());
