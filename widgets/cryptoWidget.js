@@ -31,7 +31,7 @@ export function createCryptoTrackerNode(config, width, height, xPosition, yPosit
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
     container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
 
-    const targetCurrency = (config.targetCurrency || 'HUF').toUpperCase();
+    const targetCurrency = (config.targetCurrency || 'USD').toUpperCase();
 
     const scale = Math.max(0.65, Math.min(width / BASE_CONTAINER_WIDTH_PX, height / BASE_CONTAINER_HEIGHT_PX));
     const padding = Math.max(10, Math.round(14 * scale));
@@ -191,17 +191,13 @@ export function createCryptoTrackerNode(config, width, height, xPosition, yPosit
         const price = coin.current_price;
         if (price !== undefined && price !== null) {
             try {
-                // Automatikus pénznem formázás (pl. 34 500 000 Ft, $84,120.50, 78.450 €)
-                const formatter = new Intl.NumberFormat('hu-HU', {
-                    style: 'currency',
-                    currency: targetCurrency,
+                const formatter = new Intl.NumberFormat(undefined, {
                     maximumFractionDigits: price < 100 ? 2 : 0,
                 });
                 rateLabel.set_text(formatter.format(price));
             } catch (e) {
-                // Ha a devizakód ismeretlen lenne az Intl-nek, fallback
                 const decimals = price < 100 ? 2 : 0;
-                rateLabel.set_text(`${price.toFixed(decimals)} ${targetCurrency}`);
+                rateLabel.set_text(price.toFixed(decimals));
             }
         }
 

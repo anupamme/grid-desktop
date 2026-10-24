@@ -334,6 +334,28 @@ export function updateHourlyForecastUi(json, uiElements, currentEpoch, extension
     }
 }
 
+export function refreshDailyBarGeometry(actor, forcedWidth = null) {
+    if (!actor || !actor.barBg || !actor.activeBar) return;
+
+    let barWidth = forcedWidth;
+    if (!barWidth || barWidth <= 0) {
+        barWidth = actor.barBg.width > 0 ? actor.barBg.width : actor.barBg.get_allocation_box().get_width();
+    }
+    if (!barWidth || barWidth <= 0) {
+        barWidth = 60;
+    }
+
+    const leftRatio = actor._leftRatio ?? 0;
+    const widthRatio = actor._widthRatio ?? 0.2;
+
+    const activeLeft = Math.round(leftRatio * barWidth);
+    let activeWidth = Math.round(widthRatio * barWidth);
+    activeWidth = Math.max(4, Math.min(activeWidth, barWidth - activeLeft));
+
+    actor.activeBar.set_x(activeLeft);
+    actor.activeBar.set_width(activeWidth);
+}
+
 export function updateDailyForecastUi(json, uiElements, extensionPath, useFahrenheit, folderName = '3x3') {
     if (!uiElements.dailyActors || uiElements.dailyActors.length === 0 || !json.forecast || !json.forecast.forecastday)
         return;
@@ -389,15 +411,14 @@ export function updateDailyForecastUi(json, uiElements, extensionPath, useFahren
         if (totalRange > 0 && Number.isFinite(minVal) && Number.isFinite(maxVal)) {
             const leftRatio = Math.max(0, Math.min(1, (minVal - globalMin) / totalRange));
             const rightRatio = Math.max(0, Math.min(1, (maxVal - globalMin) / totalRange));
-
-            activeLeft = Math.round(leftRatio * barWidth);
-            const activeRight = Math.round(rightRatio * barWidth);
-            activeWidth = Math.max(6, activeRight - activeLeft);
-
-            if (activeLeft + activeWidth > barWidth) {
-                activeWidth = barWidth - activeLeft;
-            }
+            actor._leftRatio = leftRatio;
+            actor._widthRatio = Math.max(0.05, rightRatio - leftRatio);
+        } else {
+            actor._leftRatio = 0;
+            actor._widthRatio = 0.2;
         }
+
+        refreshDailyBarGeometry(actor);
 
         if (actor.activeBar) {
             actor.activeBar.set_x(activeLeft);

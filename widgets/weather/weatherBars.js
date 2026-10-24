@@ -1,7 +1,7 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
-import { FALLBACK_LOCATION, HOURLY_FORECAST_COUNT, createFallbackIcon, configureWrappingLabel, buildFontCss } from './weatherCommon.js';
+import { FALLBACK_LOCATION, HOURLY_FORECAST_COUNT, createFallbackIcon, configureWrappingLabel, buildFontCss, refreshDailyBarGeometry } from './weatherCommon.js';
 import { SECONDARY_OPACITY } from '../../utils/widgetUtils.js';
 import { attachResponsiveScaler } from '../../shell/widgetUIUtils.js';
 
@@ -24,7 +24,7 @@ const BASE_BAR_HEIGHT = 4;
 const FORECAST_DAYS_COUNT = 5;
 
 export function buildBarsLayout(layout, widgetData, extensionPath) {
-    const uiElements = { hourlyActors: [], dailyActors: [] };
+    const uiElements = { layout, hourlyActors: [], dailyActors: [] };
     const fontCss = buildFontCss(widgetData);
 
     // ── 1. Header ──
@@ -202,8 +202,14 @@ export function buildBarsLayout(layout, widgetData, extensionPath) {
 export function attachBarsScaler(widgetNode, uiElements, widgetData) {
     const fontCss = buildFontCss(widgetData);
 
-    return attachResponsiveScaler(widgetNode, BASE_LAYOUT_WIDTH, BASE_LAYOUT_HEIGHT, (scale) => {
+    return attachResponsiveScaler(widgetNode, BASE_LAYOUT_WIDTH, BASE_LAYOUT_HEIGHT, (scale, w, h) => {
         if (!uiElements || !uiElements.cityLabel) return;
+
+        // Arányos belső margó a külső konténernek, hogy Large méretben se érje el a szélét
+        const outerPad = Math.max(12, Math.round(14 * scale));
+        if (uiElements.layout) {
+            uiElements.layout.style = `padding: ${outerPad}px;`;
+        }
 
         const citySize = Math.max(1, Math.round(BASE_CITY_FONT_SIZE * scale));
         const tempSize = Math.max(1, Math.round(BASE_TEMP_FONT_SIZE * scale));
@@ -217,8 +223,11 @@ export function attachBarsScaler(widgetNode, uiElements, widgetData) {
         const dailyTextSize = Math.max(1, Math.round(BASE_DAILY_TEXT_SIZE * scale));
         const dailyIconSize = Math.max(1, Math.round(BASE_DAILY_ICON_SIZE * scale));
         const barH = Math.max(3, Math.round(BASE_BAR_HEIGHT * scale));
-        const dayW = Math.max(24, Math.round(32 * scale));
-        const valW = Math.max(18, Math.round(24 * scale));
+        
+        // Növeljük a feliratok fenntartott szélességét, hogy kényelmesen elférjenek
+        const dayW = Math.max(26, Math.round(36 * scale));
+        const valW = Math.max(22, Math.round(28 * scale));
+        const gap = Math.max(4, Math.round(6 * scale));
 
         uiElements.cityLabel.style = `${fontCss}font-weight: 600; font-size: ${citySize}px; margin-bottom: 2px; color: inherit;`;
         uiElements.tempLabel.style = `${fontCss}font-size: ${tempSize}px; font-weight: 300; color: inherit;`;
@@ -236,16 +245,24 @@ export function attachBarsScaler(widgetNode, uiElements, widgetData) {
 
         if (uiElements.dailyActors) {
             const accentColor = widgetData.accentColor || widgetData.globalAccentColor || '#5b8cbd';
+            
+            // Kiszámítjuk a barBg tényleges rendelkezésre álló szélességét:
+            // w - 2 * outerPad - dayW - iconSize - 2 * valW - margók
+            const availableBarWidth = Math.max(30, Math.floor(w - (outerPad * 2) - dayW - dailyIconSize - (valW * 2) - (gap * 4)));
+
             uiElements.dailyActors.forEach(actor => {
                 actor.dayLabel.style = `${fontCss}font-size: ${dailyTextSize}px; font-weight: 600; min-width: ${dayW}px; color: inherit;`;
                 actor.icon.icon_size = dailyIconSize;
-                actor.minLabel.style = `${fontCss}font-size: ${dailyTextSize}px; min-width: ${valW}px; text-align: right; margin-right: 6px; opacity: 0.85; color: inherit;`;
-                actor.maxLabel.style = `${fontCss}font-size: ${dailyTextSize}px; min-width: ${valW}px; text-align: left; margin-left: 6px; font-weight: 500; color: inherit;`;
+                actor.minLabel.style = `${fontCss}font-size: ${dailyTextSize}px; min-width: ${valW}px; text-align: right; margin-right: ${gap}px; opacity: 0.85; color: inherit;`;
+                actor.maxLabel.style = `${fontCss}font-size: ${dailyTextSize}px; min-width: ${valW}px; text-align: left; margin-left: ${gap}px; font-weight: 500; color: inherit;`;
 
                 actor.barBg.set_height(barH);
                 actor.barBg.style = `background-color: rgba(255, 255, 255, 0.15); height: ${barH}px; border-radius: ${Math.round(barH / 2)}px;`;
                 actor.activeBar.set_height(barH);
                 actor.activeBar.style = `background-gradient-direction: horizontal; background-gradient-start: ${accentColor}; background-gradient-end: #ffd043; height: ${barH}px; border-radius: ${Math.round(barH / 2)}px;`;
+
+                // Azonnal átskálázzuk az activeBar-t az új mérethez:
+                refreshDailyBarGeometry(actor, availableBarWidth);
             });
         }
     });
