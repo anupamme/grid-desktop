@@ -143,13 +143,16 @@ function drawSingleClock(cr, size, city, fontFamily) {
 }
 
 export function createWorldTimeAnalogNode(config, width, height, xPosition, yPosition) {
-    const bgColor = resolveWidgetBackgroundColor(config);
+    const rawBgColor = resolveWidgetBackgroundColor(config);
+    const opacity = config.bgOpacity !== undefined ? config.bgOpacity : 100;
+    const finalBgColor = cssColorToRgba(rawBgColor, opacity / 100);
+
     const textColor = resolveWidgetForegroundColor(config);
     const fontFamily = resolveExplicitFontFamily(config) || 'Sans';
     const borderRadius = config.appliedBorderRadius || 0;
 
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+    container.style = (container.style || '') + ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
 
     const cities = config.cities || DEFAULT_ANALOG_CITIES;
 
@@ -157,7 +160,7 @@ export function createWorldTimeAnalogNode(config, width, height, xPosition, yPos
         orientation: Clutter.Orientation.VERTICAL,
         x_expand: true,
         y_expand: true,
-        style: `background-color: ${bgColor}; border-radius: ${borderRadius}px; padding: 6px;`,
+        style: `padding: 6px;`,
     });
     container.add_child(mainBox);
 
@@ -212,7 +215,7 @@ export function createWorldTimeAnalogNode(config, width, height, xPosition, yPos
     attachResponsiveScaler(container, BASE_WIDTH, BASE_HEIGHT, (scale, w, h) => {
         if (isActorDestroyed(container)) return;
         const pad = Math.max(4, Math.round(6 * scale));
-        mainBox.style = `background-color: ${bgColor}; border-radius: ${borderRadius}px; padding: ${pad}px;`;
+        mainBox.style = `padding: ${pad}px;`;
 
         const newCellSize = Math.max(40, Math.floor((Math.min(w, h) - (pad * 4)) / 2));
         clockAreas.forEach(area => {

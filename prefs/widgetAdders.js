@@ -7,7 +7,7 @@ import {
 
 export const DEFAULT_RSS_REFRESH_MINUTES = 15;
 
-export function addTimeWidget(settings, width = 3, height = 2, layout = 'digital', cities = null, skin = null) {
+export function addTimeWidget(settings, width = 4, height = 3, layout = 'digital', cities = null, skin = null) {
     const config = { id: nextWidgetId(settings, 'time'), type: 'time', layout };
     if (cities && Array.isArray(cities)) {
         config.cities = cities;
@@ -18,7 +18,7 @@ export function addTimeWidget(settings, width = 3, height = 2, layout = 'digital
     addWidget(settings, config, width, height);
 }
 
-export function addAnalogClockWidget(settings, skin = 'basic', width = 3, height = 3) {
+export function addAnalogClockWidget(settings, skin = 'basic', width = 4, height = 4) {
     const config = {
         id: nextWidgetId(settings, 'time'),
         type: 'time',
@@ -28,7 +28,7 @@ export function addAnalogClockWidget(settings, skin = 'basic', width = 3, height
     addWidget(settings, config, width, height);
 }
 
-export function addWeatherWidget(settings, city = 'London', width = 3, height = 3, layout = 'standard') {
+export function addWeatherWidget(settings, city = 'London', width = 4, height = 4, layout = 'standard') {
     addWidget(settings, { id: nextWidgetId(settings, 'weather'), type: 'weather', location: city, layout }, width, height);
 }
 export function addWeatherBarsWidget(settings, city = 'London', width = 6, height = 6) {
@@ -45,7 +45,7 @@ export function addPomodoroWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'pomodoro'), type: 'pomodoro' }, width, height);
 }
 
-export function addPomodoroFocusWidget(settings, width = 4, height = 2) {
+export function addPomodoroFocusWidget(settings, width = 8, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'pomodoro-focus'), type: 'pomodoro-focus' }, width, height);
 }
 
@@ -53,7 +53,7 @@ export function addCpuRamWidget(settings, width = 4, height = 2) {
     addWidget(settings, { id: nextWidgetId(settings, 'cpu-ram'), type: 'cpu-ram' }, width, height);
 }
 
-export function addNetworkSpeedWidget(settings, width = 3, height = 2) {
+export function addNetworkSpeedWidget(settings, width = 4, height = 2) {
     addWidget(settings, { id: nextWidgetId(settings, 'network-speed'), type: 'network-speed' }, width, height);
 }
 
@@ -69,34 +69,34 @@ export function addClipboardWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'clipboard'), type: 'clipboard' }, width, height);
 }
 
-export function addCalendarWidget(settings, width = 4, height = 3) {
+export function addCalendarWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'calendar'), type: 'calendar' }, width, height);
 }
 
-export function addQuotesWidget(settings, width = 3, height = 3) {
+export function addQuotesWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'quotes'), type: 'quotes' }, width, height);
 }
 
-export function addScreenTimeWidget(settings, width = 6, height = 3) {
+export function addScreenTimeWidget(settings, width = 8, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'screen-time'), type: 'screen-time' }, width, height);
 }
 
-export function addCalendarGridWidget(settings, width = 4, height = 4) {
+export function addCalendarGridWidget(settings, width = 5, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'calendar-grid'), type: 'calendar-grid' }, width, height);
 }
 
-export function addTodoWidget(settings, width = 5, height = 3) {
+export function addTodoWidget(settings, width = 6, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'todo'), type: 'todo' }, width, height);
 }
 
-export function addGithubWidget(settings, username = '', width = 7, height = 3) {
+export function addGithubWidget(settings, username = '', width = 8, height = 4) {
     const widgetConfig = { id: nextWidgetId(settings, 'github'), type: 'github' };
     if (username)
         widgetConfig.username = username;
     addWidget(settings, widgetConfig, width, height);
 }
 
-export function addRssHeadlinesWidget(settings, feedUrl = '', width = 3, height = 3) {
+export function addRssHeadlinesWidget(settings, feedUrl = '', width = 4, height = 4) {
     if (!feedUrl)
         return;
     addWidget(settings, {
@@ -107,11 +107,11 @@ export function addRssHeadlinesWidget(settings, feedUrl = '', width = 3, height 
     }, width, height);
 }
 
-export function addMoodWidget(settings, width = 6, height = 3) {
+export function addMoodWidget(settings, width = 8, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'mood'), type: 'mood' }, width, height);
 }
 
-export function addSunScheduleWidget(settings, city, latitude, longitude, width = 3, height = 3) {
+export function addSunScheduleWidget(settings, city, latitude, longitude, width = 4, height = 4) {
     addWidget(settings, {
         id: nextWidgetId(settings, 'sun-schedule'),
         type: 'sun-schedule',
@@ -134,7 +134,7 @@ export function addAppLauncherWidget(settings, apps) {
     }, 4, 3);
 }
 
-export function addSlideshowWidget(settings, folderPath, intervalSeconds = 10, width = 4, height = 4, caption = 'My Slideshow', showCaption = true) {
+export function addSlideshowWidget(settings, folderPath, intervalSeconds = 10, width = 4, height = 3, caption = 'My Slideshow', showCaption = true) {
     const finalCaption = caption && caption.trim() !== '' ? caption.trim() : 'My Slideshow';
     const widgetConfig = {
         id: nextWidgetId(settings, 'slideshow'),
@@ -148,7 +148,7 @@ export function addSlideshowWidget(settings, folderPath, intervalSeconds = 10, w
     addWidget(settings, widgetConfig, width, height);
 }
 
-export function addImageWidget(settings, imagePath, caption = 'My Image', showCaption = true, width = 2, height = 2) {
+export function addImageWidget(settings, imagePath, caption = 'My Image', showCaption = true, width = 4, height = 3) {
     const finalCaption = caption && caption.trim() !== '' ? caption.trim() : 'My Image';
     const widgetConfig = {
         id: nextWidgetId(settings, 'image'),
@@ -161,7 +161,7 @@ export function addImageWidget(settings, imagePath, caption = 'My Image', showCa
     addWidget(settings, widgetConfig, width, height);
 }
 
-export function addBatteryStatusWidget(settings, width = 4, height = 3) {
+export function addBatteryStatusWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'battery-status'), type: 'battery-status' }, width, height);
 }
 
@@ -201,7 +201,7 @@ export function addAudioOutputWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'audioOutput'), type: 'audioOutput' }, width, height);
 }
 
-export function addControlsSlidersWidget(settings, width = 3, height = 5) {
+export function addControlsSlidersWidget(settings, width = 5, height = 3) {
     addWidget(settings, { id: nextWidgetId(settings, 'controlsSliders'), type: 'controlsSliders' }, width, height);
 }
 
@@ -236,12 +236,13 @@ export function addStopWatchWidget(settings, width = 4, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'stopwatch'), type: 'stopwatch' }, width, height);
 }
 
-export function addPingWidget(settings, width = 4, height = 4) {
+export function addPingWidget(settings, width = 2, height = 2) {
     addWidget(settings, {
         id: nextWidgetId(settings, 'ping'),
         type: 'ping-monitor',
         pingHost: '1.1.1.1',
         pingLabel: 'Cloudflare',
+        showChart: false,
     }, width, height);
 }
 

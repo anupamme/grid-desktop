@@ -341,18 +341,23 @@ export function openAddRssHeadlinesDialog(parentWindow, settings) {
 }
 
 export function openAddAppLauncherDialog(parentWindow, settings) {
-    const { window, group } = createModernWidgetAddDialog(parentWindow, 'Configure App Launcher Widget');
+    let appSelection = null;
+
+    const { window, group } = createModernWidgetAddDialog(parentWindow, 'Configure App Launcher Widget', () => {
+        if (appSelection) {
+            const selectedApps = appSelection.getSelectedApps();
+            addAppLauncherWidget(settings, selectedApps);
+            return true;
+        }
+        return false;
+    });
+
     window.set_default_size(560, 580);
 
     const containerBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-    const appSelection = createAppSelectionControls(containerBox, 0);
+    appSelection = createAppSelectionControls(containerBox, 0);
     group.add(containerBox);
 
-    // Felülbíráljuk a bezárást az Add gombra
-    // Mivel az Adw.PreferencesGroup-ba tettük, a meglévő selection vezérlő simán elfér
-    const headerBar = window.get_content().get_top_bars()[0];
-    // Az addBtn kattintásra megnézzük a kiválasztást
-    // (A createModernWidgetAddDialog onConfirm callbackjével is köthető)
     window.present();
 }
 

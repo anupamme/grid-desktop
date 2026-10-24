@@ -156,9 +156,13 @@ export function createCalendarGridNode(config, width, height, xPosition, yPositi
 
             const isWeekend = cell % 7 === 0 || cell % 7 === 6;
             label.text = String(dayNumber);
-            label.style = isWeekend
-                ? `${baseDayStyle(fontSize)} opacity: ${WEEKEND_TEXT_OPACITY};`
-                : baseDayStyle(fontSize);
+            if (isWeekend) {
+                // A globális accent színt használja, így témaváltáskor is tökéletes
+                const accent = config.globalAccentColor || '#3584e4';
+                label.style = `${fontCss}font-size: ${fontSize}px; color: ${accent}; font-weight: 600;`;
+            } else {
+                label.style = baseDayStyle(fontSize);
+            }
         }
     }
 

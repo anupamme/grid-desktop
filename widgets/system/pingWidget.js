@@ -23,7 +23,7 @@ const PING_BASELINE_MS = 60;
 export function createPingNode(config, width, height, xPosition, yPosition) {
     const targetHost = config.pingHost || '1.1.1.1';
     const targetLabel = config.pingLabel || 'Cloudflare';
-    const showChart = config.showChart !== false;
+    const showChart = config.showChart === true;
 
     pingEngine.setHost(targetHost);
 
