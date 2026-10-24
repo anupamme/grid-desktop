@@ -51,6 +51,7 @@ A high-performance desktop widget ecosystem and icon manager for GNOME Shell, po
 - **Temperature Units**: Seamless toggle between Celsius and Fahrenheit.
 - **Trend Charts**: Optional history/trend sparkline graphs for modular weather cards.
 - **Styling Overrides**: Custom font family, background color, opacity slider (0–100%), and text/icon colors per card.
+- **Moon**: Currend moon phase and upcoming phases.
 
 #### Media & Imagery
 *Dynamic desktop media playback controls and visual display tiles.*
@@ -114,6 +115,7 @@ A high-performance desktop widget ecosystem and icon manager for GNOME Shell, po
 - **Timer**: Simple countdown timer widget with progress tracking and pause/reset controls.
 - **Countdown**: Target date and deadline countdown tracker displaying remaining days and time within a circular progress gauge.
 - **Stopwatch**: Clean desktop stopwatch with elapsed time display and playback controls.
+- **Binary Time**: A clean BCD binary clock display
 
 **Analog Clock Settings & Customization:**
 - **Clock Skins**: Multiple built-in skins available (Basic, Community, Osx, Rolex, Sensa) alongside support for custom SVG designs.
