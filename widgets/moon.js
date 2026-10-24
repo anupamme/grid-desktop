@@ -3,8 +3,7 @@ import Clutter from 'gi://Clutter';
 import Cairo from 'gi://cairo';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
-import Gdk from 'gi://Gdk';
-import GdkPixbuf from 'gi://GdkPixbuf'
+
 
 import {
     CAIRO_OPERATOR_CLEAR,
@@ -42,18 +41,18 @@ const SYNODIC_MONTH = 29.53058867;
 const KNOWN_NEW_MOON_TIMESTAMP = 947182440;
 
 
-let moonPixbuf = null;
+let moonImagePath = null;
 try {
     const currentFilePath = Gio.File.new_for_uri(import.meta.url).get_path();
     const currentDir = GLib.path_get_dirname(currentFilePath);
-    // Ha a widgets/ mappában van, akkor egy szinttel feljebb van az assets
-    const imagePath = GLib.build_filenamev([currentDir, '..', 'assets', 'moon', 'moon.png']);
-    if (GLib.file_test(imagePath, GLib.FileTest.EXISTS)) {
-        moonPixbuf = GdkPixbuf.Pixbuf.new_from_file(imagePath);
+    const p = GLib.build_filenamev([currentDir, '..', 'assets', 'moon', 'moon.png']);
+    if (GLib.file_test(p, GLib.FileTest.EXISTS)) {
+        moonImagePath = p;
     }
 } catch (e) {
-    console.warn('Grid Desktop: Nem sikerült betölteni a hold textúrát:', e.message);
+    console.warn('Grid Desktop: Nem található a hold kép:', e.message);
 }
+
 
 
 /**
@@ -137,11 +136,23 @@ export function createMoonNode(config, width, height, xPosition, yPosition) {
     container.add_child(mainBox);
 
     // Bal oldal: Hold grafika (DrawingArea)
-    const moonCanvasBox = new St.BoxLayout({
+    const moonCanvasBox = new St.Widget({
+        layout_manager: new Clutter.BinLayout(),
         x_align: Clutter.ActorAlign.CENTER,
         y_align: Clutter.ActorAlign.CENTER,
     });
-    const moonCanvas = new St.DrawingArea();
+
+    const moonBgImage = new St.Widget({
+        style: moonImagePath ? `background-image: url("${moonImagePath}"); background-size: contain;` : '',
+        x_expand: true,
+        y_expand: true,
+    });
+    moonCanvasBox.add_child(moonBgImage);
+
+    const moonCanvas = new St.DrawingArea({
+        x_expand: true,
+        y_expand: true,
+    });
     moonCanvasBox.add_child(moonCanvas);
     mainBox.add_child(moonCanvasBox);
 
@@ -228,8 +239,7 @@ export function createMoonNode(config, width, height, xPosition, yPosition) {
 
         const cx = w / 2;
         const cy = h / 2;
-        const radius = Math.min(w, h) * 0.44;
-        const diameter = radius * 2;
+        const radius = Math.min(w, h) * 0.46;
 
         let phase = currentPhaseData.phase;
         if (isSouthernHemisphere) {
@@ -238,69 +248,52 @@ export function createMoonNode(config, width, height, xPosition, yPosition) {
 
         const isWaxing = phase <= 0.5;
         const fraction = currentPhaseData.fraction;
+        // k: -1 (újholdkor) ... 0 (félholdkor) ... +1 (teliholdkor)
         const k = 2 * fraction - 1;
         const steps = 60;
 
-        const renderTexture = (alpha) => {
-            if (moonPixbuf) {
-                ctx.save();
-                ctx.translate(cx - radius, cy - radius);
-                ctx.scale(diameter / moonPixbuf.get_width(), diameter / moonPixbuf.get_height());
-                Gdk.cairo_set_source_pixbuf(ctx, moonPixbuf, 0, 0);
-                if (alpha < 1.0) {
-                    ctx.paintWithAlpha(alpha);
-                } else {
-                    ctx.paint();
-                }
-                ctx.restore();
-            } else {
-                ctx.setSourceRGBA(textRgb.r, textRgb.g, textRgb.b, alpha);
-                ctx.fill();
-            }
-        };
+        // Teliholdnál (99%+ megvilágítás) nincs árnyék, tündököljön a teljes fotó:
+        if (fraction >= 0.99) {
+            ctx.$dispose();
+            return;
+        }
 
-        // 1. ÁRNYÉKOS ALAP (Földfény - halvány textúra a teljes korongon)
         ctx.save();
         ctx.newPath();
-        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-        ctx.clip();
-        renderTexture(0.18);
-        ctx.restore();
 
-        // 2. MEGVILÁGÍTOTT OLDAL (Clip maszkolás a fázis görbéjére)
-        if (fraction > 0.01) {
-            ctx.save();
-            ctx.newPath();
-
-            if (isWaxing) {
-                ctx.arc(cx, cy, radius, -Math.PI / 2, Math.PI / 2);
-                for (let i = 0; i <= steps; i++) {
-                    const angle = Math.PI / 2 - (i / steps) * Math.PI;
-                    const y = cy + radius * Math.sin(angle);
-                    const x = cx - radius * k * Math.cos(angle);
-                    ctx.lineTo(x, y);
-                }
-            } else {
-                ctx.arc(cx, cy, radius, Math.PI / 2, 3 * Math.PI / 2);
-                for (let i = 0; i <= steps; i++) {
-                    const angle = -Math.PI / 2 + (i / steps) * Math.PI;
-                    const y = cy + radius * Math.sin(angle);
-                    const x = cx + radius * k * Math.cos(angle);
-                    ctx.lineTo(x, y);
-                }
+        // Mindig a Hold árnyékos (sötét) területét határoljuk körül:
+        if (isWaxing) {
+            // Növekvő hold: a jobb oldal világos, a bal oldal sötét.
+            // Külső bal félkörív (fentről lefelé a bal peremen):
+            ctx.arc(cx, cy, radius, -Math.PI / 2, Math.PI / 2);
+            // Visszafelé alulról felfelé a terminátor (fény-árnyék határ) mentén:
+            for (let i = 0; i <= steps; i++) {
+                const angle = Math.PI / 2 - (i / steps) * Math.PI;
+                const y = cy + radius * Math.sin(angle);
+                const x = cx + radius * k * Math.cos(angle);
+                ctx.lineTo(x, y);
             }
-
-            ctx.closePath();
-            ctx.clip();
-
-            // Ragyogó textúra a megvilágított részen
-            renderTexture(1.0);
-            ctx.restore();
+        } else {
+            // Fogyó hold: a bal oldal világos, a jobb oldal sötét.
+            // Külső jobb félkörív:
+            ctx.arc(cx, cy, radius, Math.PI / 2, 3 * Math.PI / 2);
+            // Visszafelé a terminátor mentén:
+            for (let i = 0; i <= steps; i++) {
+                const angle = 3 * Math.PI / 2 - (i / steps) * Math.PI;
+                const y = cy + radius * Math.sin(angle);
+                const x = cx + radius * k * Math.cos(angle);
+                ctx.lineTo(x, y);
+            }
         }
+
+        ctx.closePath();
+        // Árnyék sötétítése: szép mély árnyék enyhe földfénnyel
+        ctx.setSourceRGBA(0.05, 0.05, 0.08, 0.82);
+        ctx.fill();
+        ctx.restore();
 
         ctx.$dispose();
     }
-
     moonCanvas.connect('repaint', drawMoon);
 
     function updateData() {
@@ -328,6 +321,8 @@ export function createMoonNode(config, width, height, xPosition, yPosition) {
             + `padding: ${px(CONTAINER_PADDING_PX)}px; border: 1px solid ${textRgba(BORDER_ALPHA)};`;
 
         const canvasSize = px(MOON_CANVAS_SIZE_PX);
+        moonCanvasBox.set_size(canvasSize, canvasSize);
+        moonBgImage.set_size(canvasSize, canvasSize);
         moonCanvas.set_size(canvasSize, canvasSize);
         moonCanvasBox.style = `margin-right: ${px(14)}px;`;
 
