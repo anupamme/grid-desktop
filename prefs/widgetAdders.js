@@ -321,3 +321,7 @@ export function addMoonWidget(settings, city, latitude, longitude, width = 6, he
         longitude,
     }, width, height);
 }
+
+export function addBinaryWidget(settings, width = 4, height = 2) {
+    addWidget(settings, { id: nextWidgetId(settings, 'binary'), type: 'binary' }, width, height);
+}

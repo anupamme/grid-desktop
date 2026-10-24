@@ -4,6 +4,7 @@ import { createWorldTimeAnalogNode } from './timeWorldAnalog.js';
 import { createAnalogTimeNode } from './timeAnalog.js';
 import { createTimerNode } from './timerWidget.js';
 import { createCountdownNode } from './countdownWidget.js';
+import { createBinaryNode } from './binary.js';
 
 export {
     createDigitalTimeNode,
@@ -12,6 +13,7 @@ export {
     createAnalogTimeNode,
     createTimerNode,
     createCountdownNode,
+    createBinaryNode
 };
 
 export function createTimeNode(widgetData, width, height, xPosition, yPosition) {
@@ -29,6 +31,9 @@ export function createTimeNode(widgetData, width, height, xPosition, yPosition) 
     }
     if (widgetData.layout === 'countdown') {
         return createCountdownNode(widgetData, width, height, xPosition, yPosition);
+    }
+    if (widgetData.layout === 'binary') {
+        return createBinaryNode(widgetData, width, height, xPosition, yPosition);
     }
     return createDigitalTimeNode(widgetData, width, height, xPosition, yPosition);
 }

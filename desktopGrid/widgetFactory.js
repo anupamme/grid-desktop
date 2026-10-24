@@ -1,7 +1,8 @@
 import { createTimerNode } from '../widgets/time/timerWidget.js';
 import { 
     createTimeNode, 
-    createWorldTimeAnalogNode 
+    createWorldTimeAnalogNode,
+    createBinaryNode
 } from '../widgets/time/index.js';
 import { createCountdownNode } from '../widgets/time/countdownWidget.js';
 import { createStopwatchNode } from '../widgets/time/stopwatchWidget.js';
@@ -117,6 +118,7 @@ const WIDGET_CREATORS = {
     'mailGoa': (data, w, h, x, y) => createMailGoaNode(data, w, h, x, y),
     'lavaLamp': (data, w, h, x, y) => createLavaLampNode(data, w, h, x, y),
     'moon': (data, w, h, x, y) => createMoonNode(data, w, h, x, y),
+    'binary': (data, w, h, x, y) => createBinaryNode(data, w, h, x, y),
 };
 
 export function createWidgetNode(data, width, height, x, y) {

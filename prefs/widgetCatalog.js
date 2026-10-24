@@ -375,14 +375,21 @@ export const STORE_WIDGETS = Object.freeze({
         gridSize: '6x3',
         thumbnail: 'moon/moon.svg',
         fallbackIconName: 'weather-clear-night-symbolic'
-    }
+    },
+    binary: {
+        title: 'Binary Time',
+        description: 'A clean BCD binary clock display.',
+        gridSize: '4x2',
+        thumbnail: 'date-and-time/binary.svg',
+        fallbackIconName: 'preferences-system-time-symbolic',
+    },
 
 });
 
 export const STORE_CATEGORIES = Object.freeze({
     weather: ['weatherStandard', 'weatherMinimal', 'weatherForecast', 'weatherBars', 'sunScheduleWidget', 'weatherCards', 'moonWidget'],
     music: ['musicPlayer', 'musicPlayerWide'],
-    time: ['timeAndDate', 'analogClock', 'worldClock', 'calendarWidget', 'calendarGrid', 'countdown', 'timer', 'stopwatch', 'worldAnalog'],
+    time: ['timeAndDate', 'analogClock', 'worldClock', 'calendarWidget', 'calendarGrid', 'countdown', 'timer', 'stopwatch', 'worldAnalog', 'binary'],
     media: ['imageGif', 'imageSlideshow'],
     utilities: [
         'systemDashboard',
@@ -462,6 +469,9 @@ function getStoreWidgetKey(widget) {
             }
             if (widget.layout === 'analog' || widget.type === 'analogClock') {
                 return 'analogClock';
+            }
+            if (widget.layout === 'binary') {
+                return 'binary';
             }
             return widget.layout === 'world' ? 'worldClock' : 'timeAndDate';
         case 'slideshow':
@@ -549,6 +559,8 @@ function getStoreWidgetKey(widget) {
             return 'lavaLamp';
         case 'moon':
             return 'moonWidget';
+        case 'binary':
+            return 'binary';
         default:
             return null;
     }

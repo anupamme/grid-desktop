@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <!-- Widget kártya háttér -->
+    <rect id="bg" width="120" height="120" rx="16" fill="#222226" />
+    <!-- LED definíciók -->
+    <circle id="dot-off" r="4.2" fill="#ffffff" opacity="0.18" />
+    <circle id="dot-on" r="4.2" fill="#ffffff" opacity="0.95" />
+  </defs>
+
+  <use href="#bg" />
+
+  <!-- Finom külső szegély -->
+  <rect x="0.5" y="0.5" width="119" height="119" rx="15.5" fill="none" stroke="#ffffff" stroke-opacity="0.14" />
+
+  <!-- 
+    BCD Rács: 6 oszlop, 4 sor (alulról felfelé: 1, 2, 4, 8)
+    Párok: [Óra 1-2]   [Perc 3-4]   [Mp 5-6]
+    X pozíciók: 25, 37 | 53, 65 | 81, 93
+    Y pozíciók: 84 (1), 68 (2), 52 (4), 36 (8)
+  -->
+  <g id="led-matrix">
+    <!-- Óra tízes (Oszlop 1, max 2 bit) -->
+    <use href="#dot-off" x="25" y="36" />
+    <use href="#dot-off" x="25" y="52" />
+    <use href="#dot-off" x="25" y="68" />
+    <use href="#dot-on" x="25" y="84" />
+
+    <!-- Óra egyes (Oszlop 2, 4 bit) -->
+    <use href="#dot-on" x="37" y="36" />
+    <use href="#dot-off" x="37" y="52" />
+    <use href="#dot-off" x="37" y="68" />
+    <use href="#dot-on" x="37" y="84" />
+
+    <!-- Perc tízes (Oszlop 3, max 3 bit) -->
+    <use href="#dot-off" x="53" y="36" />
+    <use href="#dot-off" x="53" y="52" />
+    <use href="#dot-off" x="53" y="68" />
+    <use href="#dot-off" x="53" y="84" />
+
+    <!-- Perc egyes (Oszlop 4, 4 bit) -->
+    <use href="#dot-off" x="65" y="36" />
+    <use href="#dot-on" x="65" y="52" />
+    <use href="#dot-off" x="65" y="68" />
+    <use href="#dot-on" x="65" y="84" />
+
+    <!-- Másodperc tízes (Oszlop 5, max 3 bit) -->
+    <use href="#dot-off" x="81" y="36" />
+    <use href="#dot-off" x="81" y="52" />
+    <use href="#dot-on" x="81" y="68" />
+    <use href="#dot-on" x="81" y="84" />
+
+    <!-- Másodperc egyes (Oszlop 6, 4 bit) -->
+    <use href="#dot-on" x="93" y="36" />
+    <use href="#dot-off" x="93" y="52" />
+    <use href="#dot-off" x="93" y="68" />
+    <use href="#dot-on" x="93" y="84" />
+  </g>
+</svg>

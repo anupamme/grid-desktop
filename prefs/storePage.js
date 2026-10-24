@@ -42,7 +42,8 @@ import {
     addCalendarTasksWidget,
     addBluetoothDevicesWidget,
     addMailGoaWidget,
-    addLavaLampWidget
+    addLavaLampWidget,
+    addBinaryWidget
 } from './widgetAdders.js';
 
 import {
@@ -269,6 +270,7 @@ export function buildStorePage(window, settings, extensionPath) {
         createDesktopWidgetCard(extensionPath, STORE_WIDGETS.timer, () => addTimerWidget(settings)),
         createDesktopWidgetCard(extensionPath, STORE_WIDGETS.countdown, () => openAddCountdownDialog(window, settings)), 
         createDesktopWidgetCard(extensionPath, STORE_WIDGETS.stopwatch, () => addStopWatchWidget(settings)),
+        createDesktopWidgetCard(extensionPath, STORE_WIDGETS.binary, () => addBinaryWidget(settings)),
     ]));
 
     // ── Personal ─────────────────────────────────────────────
