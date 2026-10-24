@@ -56,18 +56,27 @@ export function createLavaLampNode(config, width, height, xPosition, yPosition) 
         const glassPath = getAssetPath('glass.svg');
         if (glassPath && GLib.file_test(glassPath, GLib.FileTest.EXISTS)) {
             const glassFile = Gio.File.new_for_path(glassPath);
-            const [ok, contents] = glassFile.load_contents(null);
-            if (ok) {
-                const text = new TextDecoder().decode(contents);
-                const match = text.match(/d="([^"]+)"/);
-                if (match && match[1]) {
-                    glassPathData = match[1];
+            glassFile.load_contents_async(null, (file, res) => {
+                try {
+                    const [ok, contents] = file.load_contents_finish(res);
+                    if (ok && contents) {
+                        const text = new TextDecoder().decode(contents);
+                        const match = text.match(/d="([^"]+)"/);
+                        if (match && match[1]) {
+                            glassPathData = match[1];
+                            if (!isActorDestroyed(drawingArea)) {
+                                drawingArea.queue_repaint();
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn(`[LavaLamp] Hiba a glass.svg beolvasásakor: ${err.message}`);
                 }
-            }
+            });
         }
     } catch (e) {
-        console.warn(`[LavaLamp] Nem sikerült beolvasni a glass.svg-t: ${e.message}`);
-    }   
+        console.warn(`[LavaLamp] Nem sikerült kezdeményezni a glass.svg betöltését: ${e.message}`);
+    }
 
     // 2. Fém váz és Csillanás betöltése
     let lampHandle = null;
