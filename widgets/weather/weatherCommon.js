@@ -222,48 +222,24 @@ export function getWeatherAssets(extensionPath, code, isDay, folderName = '3x3',
 }
 
 export function createBackgroundImageActor(widgetNode) {
-    const bgImageActor = watchActorLifecycle(new St.Widget({
+    return watchActorLifecycle(new St.Widget({
         style: '',
-        x: 0,
-        y: 0,
-        width: widgetNode.width,
-        height: widgetNode.height,
+        x_expand: true,
+        y_expand: true,
+        x_align: Clutter.ActorAlign.FILL,
+        y_align: Clutter.ActorAlign.FILL,
     }));
-
-    widgetNode.connect('notify::width', () => {
-        if (!isActorDestroyed(bgImageActor))
-            bgImageActor.set_width(Math.max(0, widgetNode.width));
-    });
-    widgetNode.connect('notify::height', () => {
-        if (!isActorDestroyed(bgImageActor))
-            bgImageActor.set_height(Math.max(0, widgetNode.height));
-    });
-
-    return bgImageActor;
 }
 
 export function createMainLayout(widgetNode) {
-    const layout = watchActorLifecycle(new St.BoxLayout({
+    return watchActorLifecycle(new St.BoxLayout({
         orientation: Clutter.Orientation.VERTICAL,
         x_expand: true,
         y_expand: true,
+        x_align: Clutter.ActorAlign.FILL,
+        y_align: Clutter.ActorAlign.FILL,
         style: `padding: ${LAYOUT_PADDING_PX}px;`,
-        x: 0,
-        y: 0,
-        width: widgetNode.width,
-        height: widgetNode.height,
     }));
-
-    widgetNode.connect('notify::width', () => {
-        if (!isActorDestroyed(layout))
-            layout.set_width(Math.max(0, widgetNode.width));
-    });
-    widgetNode.connect('notify::height', () => {
-        if (!isActorDestroyed(layout))
-            layout.set_height(Math.max(0, widgetNode.height));
-    });
-
-    return layout;
 }
 
 export function createFallbackIcon(extensionPath) {
@@ -274,18 +250,34 @@ export function createFallbackIcon(extensionPath) {
 
 // Resolves the effective layout variant with the same rule the widget factory uses.
 export function resolveWeatherLayoutVariant(widgetData) {
-    if (widgetData.type === 'weather_bars')
-        return 'bars';
-    return widgetData.layout || (
-        widgetData.width >= FORECAST_MIN_GRID_WIDTH
-            ? 'forecast'
-            : (widgetData.width === SIMPLE_MIN_GRID_WIDTH ? 'simple' : 'standard')
-    );
+    if (!widgetData) return 'standard';
+
+    const type = widgetData.type || '';
+    if (type === 'weather_cards' || type === 'weatherCards') return 'cards';
+    if (type === 'weather_bars' || type === 'weatherBars') return 'bars';
+    if (type === 'weather_forecast' || type === 'weatherForecast') return 'forecast';
+    if (type === 'weather_simple' || type === 'weatherSimple') return 'simple';
+    if (type === 'weather_standard' || type === 'weatherStandard') return 'standard';
+
+    if (widgetData.layout) return widgetData.layout;
+
+    // Fallback csak akkor, ha nincs típus vagy layout beállítva:
+    const w = widgetData.width || 4;
+    const h = widgetData.height || 4;
+
+    if (w >= 6 && h < 6) return 'forecast';
+    if (w >= 6 && h >= 6) return 'bars';
+    return 'standard';
 }
 
 export function getAssetSizeForWidget(widgetData) {
     const layoutVariant = resolveWeatherLayoutVariant(widgetData);
-    return (layoutVariant === 'forecast' || layoutVariant === 'simple' || layoutVariant === 'bars' || widgetData.type === 'weather_bars') ? '4x6' : '3x3';
+    // A fekvő/széles forecast és a nagy rácsos bars / simple a 4x6-os hátteret kéri,
+    // a standard és a négyzetes kártyák a 3x3-as mappából kapják a képeket:
+    if (layoutVariant === 'forecast' || layoutVariant === 'bars') {
+        return '4x6';
+    }
+    return '3x3';
 }
 
 export function updateHourlyForecastUi(json, uiElements, currentEpoch, extensionPath, useFahrenheit, folderName = '3x3') {

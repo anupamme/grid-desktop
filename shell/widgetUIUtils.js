@@ -127,10 +127,10 @@ export function createWidgetContainer(config, width, height, xPosition, yPositio
     const container = new WidgetActor({
         style_class: 'gridgets-widget',
         style: `${baseStyle} ${fontCss}background-color: ${backgroundColor}; color: ${textColor}; ${glassHighlight}`,
-        x: xPosition,
-        y: yPosition,
-        width: width,
-        height: height,
+        x: Math.round(xPosition),   
+        y: Math.round(yPosition),  
+        width: Math.round(width),   
+        height: Math.round(height),
         reactive: true,
         layout_manager: new Clutter.BinLayout(),
     });
