@@ -419,13 +419,10 @@ export function updateDailyForecastUi(json, uiElements, extensionPath, useFahren
             actor._leftRatio = 0;
             actor._widthRatio = 0.2;
         }
+        
 
         refreshDailyBarGeometry(actor);
 
-        if (actor.activeBar) {
-            actor.activeBar.set_x(activeLeft);
-            actor.activeBar.set_width(activeWidth);
-        }
     });
 }
 

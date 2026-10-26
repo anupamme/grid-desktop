@@ -107,13 +107,13 @@ export function resolveWidgetGlassHighlight(config) {
     const isDark = isDarkBackgroundColor(bgColor);
 
     if (isDark) {
-        // Sötét téma: Finom fehér becsillanás körben + felül erősebb élfény
-        return 'border: 1px solid rgba(255, 255, 255, 0.10); border-top: 1px solid rgba(255, 255, 255, 0.25);';
+        // Körben egyenletes, stabil 1px-es vonal (0.10), a tetején finom élfénnyel (0.20)
+        return 'border: 1px solid rgba(255, 255, 255, 0.10); border-top: 1px solid rgba(255, 255, 255, 0.20);';
     } else {
-        // Világos téma: Finom sötét szegély körben + alul egy leheletnyi árnyékél
-        return 'border: 1px solid rgba(0, 0, 0, 0.08); border-bottom: 1px solid rgba(0, 0, 0, 0.16);';
+        return 'border: 1px solid rgba(0, 0, 0, 0.08); border-bottom: 1px solid rgba(0, 0, 0, 0.14);';
     }
 }
+
 
 
 export function createWidgetContainer(config, width, height, xPosition, yPosition) {
