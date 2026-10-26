@@ -6,7 +6,6 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import { isWideMusicLayout, DEFAULT_FONT_FAMILY, DEFAULT_BG_COLOR, DEFAULT_FG_COLOR } from '../utils/widgetUtils.js';
 import { openImageFileDialog } from './fileDialogs.js';
-import { createNormalizedFontDescription } from './aestheticControls.js';
 import { DEFAULT_RSS_REFRESH_MINUTES } from './widgetAdders.js';
 import { createLiveCitySearchRow, buildOpenMeteoCitySearchRow } from './citySearch.js';
 import { createAppSelectionControls } from './appSelection.js';

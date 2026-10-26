@@ -1,7 +1,5 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
-import Pango from 'gi://Pango';
-import GLib from 'gi://GLib';
 import { openImageFileDialog, openFolderFileDialog } from './fileDialogs.js';
 import {
     addImageWidget,
@@ -18,7 +16,6 @@ import {
 } from './widgetAdders.js';
 import { createAppSelectionControls } from './appSelection.js';
 import { createLiveCitySearchRow, buildOpenMeteoCitySearchRow } from './citySearch.js';
-import { buildCaptionRows } from './captionControls.js';
 import { DEFAULT_WORLD_CLOCK_CITIES, MIN_SLIDESHOW_INTERVAL_SEC, MAX_SLIDESHOW_INTERVAL_SEC, STEP_SLIDESHOW_INTERVAL_SEC, DEFAULT_SLIDESHOW_INTERVAL_SEC } from './widgetConstants.js';
 
 

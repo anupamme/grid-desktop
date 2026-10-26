@@ -1,5 +1,3 @@
-// This project uses LLMs as a helper (templates, boilerplate, auto-completion)
-// while the majority of the code is written and verified by a human.
 import GLib from 'gi://GLib';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import Gio from 'gi://Gio';

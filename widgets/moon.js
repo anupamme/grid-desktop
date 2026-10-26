@@ -1,6 +1,5 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
-import Cairo from 'gi://cairo';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 

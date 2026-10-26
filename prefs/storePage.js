@@ -1,5 +1,4 @@
 import Gtk from 'gi://Gtk';
-import Pango from 'gi://Pango';
 import Adw from 'gi://Adw';
 
 import {
