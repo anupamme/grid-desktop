@@ -24,7 +24,6 @@ import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 
 const BASE_CONTAINER_WIDTH_PX = 240;
 const BASE_CONTAINER_HEIGHT_PX = 140;
-const BORDER_ALPHA = 0.14;
 
 // Tisztán Cairo-alapú kapszula csúszka (garantáltan balról jobbra, 0 allocation hiba)
 class CapsuleSlider {
@@ -176,7 +175,6 @@ export function createControlsSlidersNode(config, width, height, xPosition, yPos
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
 
     let scale = Math.max(0.65, Math.min(width / BASE_CONTAINER_WIDTH_PX, height / BASE_CONTAINER_HEIGHT_PX));
     const isDarkSurface = isDarkBackgroundColor(resolveWidgetBackgroundColor(config));

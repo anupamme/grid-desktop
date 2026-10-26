@@ -14,7 +14,7 @@ import {
 } from '../../utils/widgetUtils.js';
 import { createWidgetContainer, registerWidgetCleanup } from '../../shell/widgetUIUtils.js';
 
-const BORDER_ALPHA = 0.14;
+
 const BADGE_BG_ALPHA = 0.12;
 const SUB_LABEL_OPACITY = 0.65;
 const CARD_BG_DARK_ALPHA = 0.05;
@@ -73,7 +73,7 @@ export function createSystemInfoNode(config, width, height, xPosition, yPosition
     const textColor = resolveWidgetForegroundColor(config);
     const accentHex = config.globalAccentColor || '#3584e4';
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const scale = Math.max(0.65, Math.min(width / 110, height / 110));
     const padding = Math.max(8, Math.round(12 * scale));

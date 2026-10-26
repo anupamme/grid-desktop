@@ -18,7 +18,7 @@ import {
 import { isActorDestroyed } from '../utils/actorLifecycle.js';
 import { mailEngine } from '../utils/mailEngine.js';
 
-const BORDER_ALPHA = 0.14;
+
 const BADGE_BG_ALPHA = 0.12;
 const SUB_LABEL_OPACITY = 0.65;
 const CARD_BG_DARK_ALPHA = 0.05;
@@ -33,7 +33,7 @@ export function createMailGoaNode(config, width, height, xPosition, yPosition) {
     const textRgba = (alpha) => cssColorToRgba(textColor, alpha);
 
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+  
 
     const isDarkSurface = isDarkBackgroundColor(resolveWidgetBackgroundColor(config));
     const cardBgAlpha = isDarkSurface ? CARD_BG_DARK_ALPHA : CARD_BG_LIGHT_ALPHA;

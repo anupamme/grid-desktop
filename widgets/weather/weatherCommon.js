@@ -6,7 +6,8 @@ import Soup from 'gi://Soup?version=3.0';
 import Pango from 'gi://Pango';
 import { resolveWidgetBackgroundColor, resolveWidgetForegroundColor, resolveExplicitFontFamily, DEFAULT_BG_COLOR, buildBaseWidgetStyle, celsiusToFahrenheit, parseCssColor, isDarkBackgroundColor } from '../../utils/widgetUtils.js';
 import { isActorDestroyed, watchActorLifecycle } from '../../utils/actorLifecycle.js';
-import { MONTH_NAMES_ABBREVIATED as MONTH_NAMES } from '../../shell/widgetUIUtils.js';
+import { MONTH_NAMES_ABBREVIATED as MONTH_NAMES, resolveWidgetGlassHighlight } from '../../shell/widgetUIUtils.js';
+
 
 export const REFRESH_INTERVAL_SECONDS = 1800;
 export const FALLBACK_LOCATION = 'London';
@@ -15,6 +16,7 @@ export const HOURLY_FORECAST_COUNT = 6;
 export const DEFAULT_WEATHER_BORDER_RADIUS_PX = 24;
 export const FORECAST_MIN_GRID_WIDTH = 6;
 export const SIMPLE_MIN_GRID_WIDTH = 4;
+
 
 const WEATHER_CACHE = new Map();
 const WEATHER_PROMISES = new Map();
@@ -457,6 +459,8 @@ export function updateWidgetStyle(widgetNode, bgImageActor, widgetData, assets, 
         bgImageActor.hide();
         return;
     }
+
+    const glassHighlight = resolveWidgetGlassHighlight(widgetData);
     
     const fontCss = buildFontCss(widgetData);
     const baseStyle = buildBaseWidgetStyle(widgetData);
@@ -473,14 +477,16 @@ export function updateWidgetStyle(widgetNode, bgImageActor, widgetData, assets, 
             + `background-gradient-end: ${bgEnd}; `
             + `color: ${textColor}; `
             + `${fontCss}`
-            + `${baseStyle}`;
+            + `${baseStyle}`
+            + `${glassHighlight}`;
     } else {
         const bgColor = resolveWidgetBackgroundColor(widgetData);
         const textColor = resolveWidgetForegroundColor(widgetData);
         widgetNode.style = `background-color: ${bgColor}; `
             + `color: ${textColor}; `
             + `${fontCss}`
-            + `${baseStyle}`;
+            + `${baseStyle}`
+            + `${glassHighlight}`;
     }
 
     if (isDynamicImage && assets.bgImagePath) {

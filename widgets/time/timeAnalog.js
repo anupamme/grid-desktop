@@ -7,7 +7,6 @@ import { attachResponsiveScaler, connectTimerCleanup, createWidgetContainer, sta
 import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 
 const BASE_CLOCK_SIZE = 160;
-const BORDER_ALPHA = 0.14;
 const DEFAULT_SKIN = 'basic';
 
 function getSkinFileUri(skinName, fileName) {
@@ -124,9 +123,7 @@ export function createAnalogTimeNode(widgetData, width, height, xPosition, yPosi
 
     if (!showBackground) {
         widgetNode.style += ' background-color: transparent; border: none; box-shadow: none;';
-    } else {
-        widgetNode.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
-    }
+    } 
 
     // Felesleges StBin eltávolítva: a widgetNode (BinLayout) közvetlenül kezeli a konténert
     const clockContainer = new St.Widget({

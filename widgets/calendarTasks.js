@@ -13,7 +13,6 @@ import {
 import { createWidgetContainer, registerWidgetCleanup, attachResponsiveScaler } from '../shell/widgetUIUtils.js';
 import { isActorDestroyed } from '../utils/actorLifecycle.js';
 
-const BORDER_ALPHA = 0.14;
 const BASE_CONTAINER_WIDTH_PX = 200;
 const BASE_CONTAINER_HEIGHT_PX = 200;
 
@@ -22,7 +21,7 @@ export function createCalendarTasksNode(config, width, height, xPosition, yPosit
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     let scale = Math.max(0.65, Math.min(width / BASE_CONTAINER_WIDTH_PX, height / BASE_CONTAINER_HEIGHT_PX));
 

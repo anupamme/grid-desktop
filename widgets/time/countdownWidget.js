@@ -11,7 +11,7 @@ const COUNTDOWN_ARC_LINE_WIDTH_RATIO = 0.06;
 const BASE_CONTAINER_SIZE = 220;
 const BASE_ARC_MARGIN = 24;
 const BASE_ARC_MIN_SIZE = 80;
-const BORDER_ALPHA = 0.14;
+
 
 export function createCountdownNode(config, width, height, xPosition, yPosition) {
     const fontFamily = resolveExplicitFontFamily(config);
@@ -19,7 +19,7 @@ export function createCountdownNode(config, width, height, xPosition, yPosition)
     const textColor = resolveWidgetForegroundColor(config);
     const accentHex = config.globalAccentColor || '#3584e4';
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const eventTitle = config.eventName || 'Goal';
     // ISO dátum string a prefs-ből, pl. '2026-12-31T00:00:00'

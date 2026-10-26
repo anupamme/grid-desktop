@@ -20,7 +20,6 @@ const TASK_ROW_PADDING_H_PX = 14;
 const TASK_TEXT_FONT_SIZE_PX = 13;
 const CHECKBOX_SIZE_PX = 16;
 const ROW_SPACING_PX = 8;
-const BORDER_ALPHA = 0.14;
 const COUNTER_ROW_MARGIN_TOP_PX = 6;
 const COUNTER_ROW_SPACING_PX = 8;
 const LIST_ICON_SIZE_PX = 20;
@@ -44,7 +43,7 @@ export function createTodoNode(config, width, height, xPosition, yPosition) {
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
     const textRgba = (alpha) => cssColorToRgba(textColor, alpha);
-    container.style += ` border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+
 
     const accentHex = config.globalAccentColor || '#3584e4';
     const accent = parseCssColor(accentHex);

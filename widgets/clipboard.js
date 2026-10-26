@@ -22,7 +22,7 @@ import { isActorDestroyed } from '../utils/actorLifecycle.js';
 const MAX_HISTORY_LENGTH = 25;
 const PREVIEW_TEXT_MAX_LENGTH = 45;
 const PREVIEW_TEXT_MIN_LENGTH = 22;
-const BORDER_ALPHA = 0.14;
+
 const ITEM_IDLE_ALPHA = 0.06;
 const ITEM_HOVER_ALPHA = 0.12;
 
@@ -35,7 +35,7 @@ export function createClipboardNode(config, width, height, xPosition, yPosition)
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
     const textRgba = (alpha) => cssColorToRgba(textColor, alpha);
-    container.style += ` border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+
 
     let currentScale = Math.min(width / REF_WIDTH_PX, height / REF_HEIGHT_PX);
 

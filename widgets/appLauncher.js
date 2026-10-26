@@ -14,7 +14,7 @@ const GRID_GAP = 10;
 const TILE_RADIUS = 14;
 const TILE_BASE_ALPHA = 0.07;
 const TILE_HOVER_ALPHA = 0.13;
-const BORDER_ALPHA = 0.14;
+
 const TILE_PADDING_RATIO = 0.1;
 const TILE_PADDING_MIN = 3;
 const TILE_PADDING_MAX = 10;
@@ -43,7 +43,7 @@ export function createAppLauncherNode(config, width, height, xPosition, yPositio
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
     const tileBaseBg = cssColorToRgba(textColor, TILE_BASE_ALPHA);
     const tileHoverBg = cssColorToRgba(textColor, TILE_HOVER_ALPHA);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const apps = Array.isArray(config.apps) ? config.apps.slice(0, MAX_APPS) : [];
 

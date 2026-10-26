@@ -15,7 +15,7 @@ const REF_HEIGHT_PX = 180;
 const CONTAINER_PADDING_PX = 16;
 const BUTTON_SIZE_PX = 60;
 const ICON_SIZE_PX = 24;
-const BORDER_ALPHA = 0.14;
+
 
 export function createPowerTogglesNode(config, width, height, xPosition, yPosition) {
     const textColor = resolveWidgetForegroundColor(config);
@@ -25,7 +25,7 @@ export function createPowerTogglesNode(config, width, height, xPosition, yPositi
 
     const textBytes = parseCssColor(textColor);
     const textRgb = () => `${Math.round(textBytes.r * 255)},${Math.round(textBytes.g * 255)},${Math.round(textBytes.b * 255)}`;
-    container.style += ` border: 1px solid rgba(${textRgb()}, ${BORDER_ALPHA});`;
+  
 
     let scale = Math.min(width / REF_WIDTH_PX, height / REF_HEIGHT_PX);
 

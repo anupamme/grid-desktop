@@ -7,6 +7,7 @@ import { isActorDestroyed } from '../utils/actorLifecycle.js';
 import {
     PHASE_WORK,
     PHASE_SHORT_BREAK,
+    PHASE_LONG_BREAK,
     buildPomodoroPhaseConfig,
     getPhaseDurationSeconds,
     getSessionsBeforeLongBreak,
@@ -27,7 +28,6 @@ const CAPTION_FONT_SIZE_PX = 9;
 const MODE_FONT_SIZE_PX = 11;
 const BUTTON_FONT_SIZE_PX = 12;
 const COUNTER_FONT_SIZE_PX = 11;
-const BORDER_ALPHA = 0.14;
 
 export function createPomodoroFocusNode(config, width, height, xPosition, yPosition) {
     const bgColor = resolveWidgetBackgroundColor(config);
@@ -99,13 +99,15 @@ export function createPomodoroFocusNode(config, width, height, xPosition, yPosit
     const modeSelector = new St.BoxLayout({
         x_align: Clutter.ActorAlign.FILL,
     });
-    const buildModeButton = (phase) => {
+
+    const modeButtons = new Map();
+    const buildModeButton = (phase, labelText) => {
         const button = new St.Button({
             reactive: true,
             can_focus: true,
             x_expand: true,
             child: new St.Label({
-                text: PHASE_CONFIG[phase].label,
+                text: labelText || PHASE_CONFIG[phase].label,
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
             }),
@@ -118,10 +120,13 @@ export function createPomodoroFocusNode(config, width, height, xPosition, yPosit
         });
         attachButtonFeedback(button);
         modeSelector.add_child(button);
+        modeButtons.set(phase, button);
         return button;
     };
-    const workBtn = buildModeButton(PHASE_WORK);
-    const breakBtn = buildModeButton(PHASE_SHORT_BREAK);
+
+    buildModeButton(PHASE_WORK, 'Work');
+    buildModeButton(PHASE_SHORT_BREAK, 'Break');
+    buildModeButton(PHASE_LONG_BREAK, 'Long');
     controlsColumn.add_child(modeSelector);
 
     const counterRow = new St.BoxLayout({
@@ -178,19 +183,20 @@ export function createPomodoroFocusNode(config, width, height, xPosition, yPosit
 
     const refreshControlStyles = () => {
         const px = (v) => Math.max(1, Math.round(v * scale));
-        const isWork = state.phase === PHASE_WORK;
         const activeBg = cssColorToRgba(accentHex, 0.22);
         const inactiveText = `color: ${textColor}; opacity: ${SECONDARY_OPACITY};`;
         const activeText = `color: ${textColor};`;
 
         modeSelector.style = `background-color: ${textRgba(0.06)};`
             + `padding: ${px(3)}px; border-radius: ${px(10)}px;`;
-        const modeButtonStyle = (isActive) => `${fontCss}font-size: ${px(MODE_FONT_SIZE_PX)}px;`
-            + `padding: ${px(6)}px 0; border-radius: ${px(7)}px;`
-            + `background-color: ${isActive ? activeBg : 'transparent'};`
-            + `${isActive ? activeText : inactiveText}`;
-        workBtn.style = modeButtonStyle(isWork);
-        breakBtn.style = modeButtonStyle(!isWork);
+
+        for (const [phase, btn] of modeButtons.entries()) {
+            const isActive = state.phase === phase;
+            btn.style = `${fontCss}font-size: ${px(MODE_FONT_SIZE_PX)}px;`
+                + `padding: ${px(6)}px 0; border-radius: ${px(7)}px;`
+                + `background-color: ${isActive ? activeBg : 'transparent'};`
+                + `${isActive ? activeText : inactiveText}`;
+        }
 
         counterPrefixLabel.style = `${fontCss}font-size: ${px(COUNTER_FONT_SIZE_PX)}px;`
             + `color: ${textColor}; opacity: ${SECONDARY_OPACITY}; margin-right: ${px(4)}px;`;
@@ -206,7 +212,7 @@ export function createPomodoroFocusNode(config, width, height, xPosition, yPosit
         resetBtn.style = `${fontCss}font-size: ${px(BUTTON_FONT_SIZE_PX)}px;`
             + `padding: ${px(10)}px 0; border-radius: ${px(10)}px;`
             + `background-color: transparent;`
-            + `border: 1px solid ${textRgba(BORDER_ALPHA)}; color: ${textColor}; opacity: 0.75;`;
+            + `color: ${textColor};`;
 
         timerLabel.style = `${fontCss}font-size: ${px(TIMER_FONT_SIZE_PX)}px;`
             + `font-weight: 300; color: ${textColor};`;
@@ -242,8 +248,6 @@ export function createPomodoroFocusNode(config, width, height, xPosition, yPosit
         scale = Math.min(currentWidth / REF_WIDTH_PX, currentHeight / REF_HEIGHT_PX);
         const px = (v) => Math.max(1, Math.round(v * scale));
 
-        container.style = `${fontCss}background-color: ${bgColor}; border-radius: ${borderRadius}px;`
-            + `border: 1px solid ${textRgba(BORDER_ALPHA)};`;
         mainBox.style = `padding: ${px(CONTAINER_PADDING_V_PX)}px ${px(CONTAINER_PADDING_H_PX)}px; spacing: ${px(14)}px;`;
 
         const gaugeSize = Math.min(currentHeight - px(CONTAINER_PADDING_V_PX) * 2, px(GAUGE_SIZE_PX));

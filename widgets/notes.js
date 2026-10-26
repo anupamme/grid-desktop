@@ -12,7 +12,7 @@ const BASE_CONTENT_FONT_SIZE = 14;
 const BASE_ICON_SIZE = 16;
 const MIN_FONT_SIZE = 11;
 const MIN_ICON_SIZE = 13;
-const BORDER_ALPHA = 0.14;
+
 const MARKDOWN_RULES = [
     [/\*\*(.*?)\*\*/g, '<b>$1</b>'],
     [/\*(.*?)\*/g, '<i>$1</i>'],
@@ -47,7 +47,7 @@ export function createNotesNode(config, width, height, xPosition, yPosition) {
 
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const baseDir = getGridgetsDataDir('notes');
     const notesFilePath = GLib.build_filenamev([

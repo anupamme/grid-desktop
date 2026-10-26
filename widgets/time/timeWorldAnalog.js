@@ -17,7 +17,6 @@ import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 
 const BASE_WIDTH = 240;
 const BASE_HEIGHT = 240;
-const BORDER_ALPHA = 0.14;
 const TICK_INTERVAL_MS = 1000;
 
 const DEFAULT_ANALOG_CITIES = [
@@ -152,7 +151,7 @@ export function createWorldTimeAnalogNode(config, width, height, xPosition, yPos
     const borderRadius = config.appliedBorderRadius || 0;
 
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style = (container.style || '') + ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+  ;
 
     const cities = config.cities || DEFAULT_ANALOG_CITIES;
 

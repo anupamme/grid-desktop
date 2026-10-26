@@ -16,7 +16,7 @@ import {
 } from '../shell/widgetUIUtils.js';
 import { isActorDestroyed } from '../utils/actorLifecycle.js';
 
-const BORDER_ALPHA = 0.14;
+
 const REF_WIDTH = 220;
 const REF_HEIGHT = 220;
 
@@ -25,7 +25,6 @@ export function createTodayHistoryNode(config, width, height, xPosition, yPositi
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
 
     const language = (config.language || 'hu').toLowerCase();
     const category = (config.category || 'selected').toLowerCase();

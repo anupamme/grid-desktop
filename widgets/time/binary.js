@@ -18,7 +18,7 @@ const BIT_COUNTS = [2, 4, 3, 4, 3, 4];
 const WITHIN_GAP_RATIO = 0.35;
 const BETWEEN_GAP_RATIO = 0.9;
 const EDGE_GAP_RATIO = 0.25;
-const BORDER_ALPHA = 0.14;
+
 
 function getClockDigits() {
     const now = GLib.DateTime.new_now_local();
@@ -36,9 +36,6 @@ function getClockDigits() {
 export function createBinaryNode(config, width, height, xPosition, yPosition) {
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-
-    // Keret a countdownWidget és moodLogger stílusában
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
 
     // Színek előkészítése a Cairo rajzoláshoz
     const parsedText = parseCssColor(textColor);

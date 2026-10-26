@@ -14,7 +14,7 @@ import {
 } from '../utils/widgetUtils.js';
 import { createWidgetContainer, registerWidgetCleanup } from '../shell/widgetUIUtils.js';
 
-const BORDER_ALPHA = 0.14;
+
 const BASE_CONTAINER_WIDTH_PX = 270;
 const BASE_CONTAINER_HEIGHT_PX = 160;
 
@@ -29,7 +29,7 @@ export function createCryptoTrackerNode(config, width, height, xPosition, yPosit
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const targetCurrency = (config.targetCurrency || 'USD').toUpperCase();
 

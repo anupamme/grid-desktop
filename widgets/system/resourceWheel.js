@@ -15,7 +15,7 @@ import {
 } from '../../utils/widgetUtils.js';
 import { createWidgetContainer, registerWidgetCleanup } from '../../shell/widgetUIUtils.js';
 
-const BORDER_ALPHA = 0.14;
+
 const BASE_CONTAINER_WIDTH_PX = 270;
 const BASE_CONTAINER_HEIGHT_PX = 210;
 
@@ -33,7 +33,7 @@ export function createResourceWheelNode(config, width, height, xPosition, yPosit
     const textColor = resolveWidgetForegroundColor(config);
     const parsedText = parseCssColor(textColor);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const scale = Math.max(0.65, Math.min(width / BASE_CONTAINER_WIDTH_PX, height / BASE_CONTAINER_HEIGHT_PX));
     const padding = Math.max(10, Math.round(14 * scale));

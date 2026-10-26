@@ -18,7 +18,7 @@ import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 
 const BASE_CONTAINER_WIDTH_PX = 220;
 const BASE_CONTAINER_HEIGHT_PX = 220;
-const BORDER_ALPHA = 0.14;
+
 const CARD_BG_DARK_ALPHA = 0.05;
 const CARD_BG_LIGHT_ALPHA = 0.04;
 const CARD_BORDER_DARK_ALPHA = 0.06;
@@ -59,7 +59,7 @@ export function createBatteryStatusNode(config, width, height, xPosition, yPosit
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     let scale = Math.max(0.65, Math.min(width / BASE_CONTAINER_WIDTH_PX, height / BASE_CONTAINER_HEIGHT_PX));
     let lastDevicesData = [];

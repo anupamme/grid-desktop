@@ -12,7 +12,7 @@ const BASE_AMPM_FONT_SIZE = 13;
 const BASE_DATE_FONT_SIZE = 14;
 const TIME_MARGIN_RIGHT_PX = 5;
 const AMPM_MARGIN_BOTTOM_PX = 4;
-const BORDER_ALPHA = 0.14;
+
 
 function buildTimeAndDateLabels({ timeFontSize, ampmFontSize, dateFontSize, fontCss, textColor }) {
     const timeRow = new St.BoxLayout({
@@ -64,7 +64,7 @@ export function createDigitalTimeNode(widgetData, width, height, xPosition, yPos
     const textColor = resolveWidgetForegroundColor(widgetData);
 
     const widgetNode = createWidgetContainer(widgetData, width, height, xPosition, yPosition);
-    widgetNode.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const textLayout = new St.BoxLayout({
         orientation: Clutter.Orientation.VERTICAL,

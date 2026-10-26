@@ -12,6 +12,7 @@ import {
     resolveWidgetForegroundColor,
     resolveExplicitFontFamily,
     parseCssColor,
+    isDarkBackgroundColor,
     CAIRO_OPERATOR_CLEAR,
     CAIRO_OPERATOR_OVER,
     CAIRO_LINE_CAP_ROUND
@@ -101,23 +102,39 @@ export function registerWidgetCleanup(widgetNode, cleanupFn) {
     }
 }
 
+export function resolveWidgetGlassHighlight(config) {
+    const bgColor = resolveWidgetBackgroundColor(config);
+    const isDark = isDarkBackgroundColor(bgColor);
+
+    if (isDark) {
+        // Sötét téma: Finom fehér becsillanás körben + felül erősebb élfény
+        return 'border: 1px solid rgba(255, 255, 255, 0.10); border-top: 1px solid rgba(255, 255, 255, 0.25);';
+    } else {
+        // Világos téma: Finom sötét szegély körben + alul egy leheletnyi árnyékél
+        return 'border: 1px solid rgba(0, 0, 0, 0.08); border-bottom: 1px solid rgba(0, 0, 0, 0.16);';
+    }
+}
+
+
 export function createWidgetContainer(config, width, height, xPosition, yPosition) {
     const baseStyle = buildBaseWidgetStyle(config);
     const backgroundColor = resolveWidgetBackgroundColor(config);
     const textColor = resolveWidgetForegroundColor(config);
     const fontFamily = resolveExplicitFontFamily(config);
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
+    const glassHighlight = resolveWidgetGlassHighlight(config);
 
     const container = new WidgetActor({
         style_class: 'gridgets-widget',
-        style: `${fontCss}background-color: ${backgroundColor}; color: ${textColor}; ${baseStyle}`,
+        style: `${baseStyle} ${fontCss}background-color: ${backgroundColor}; color: ${textColor}; ${glassHighlight}`,
         x: xPosition,
         y: yPosition,
         width: width,
         height: height,
         reactive: true,
+        layout_manager: new Clutter.BinLayout(),
     });
-    
+    container.set_clip_to_allocation(true);
     return watchActorLifecycle(container);
 }
 

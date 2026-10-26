@@ -31,7 +31,6 @@ const WATERMIND_ARC_LINE_WIDTH_RATIO = 0.06;
 const BASE_CONTAINER_SIZE = 220;
 const BASE_ARC_MARGIN = 24;
 const BASE_ARC_MIN_SIZE = 80;
-const BORDER_ALPHA = 0.14;
 const WORK_SHIFT_HOURS = 8;
 
 export function createWatermindNode(config, width, height, xPosition, yPosition) {
@@ -45,7 +44,6 @@ export function createWatermindNode(config, width, height, xPosition, yPosition)
     const waterIcon = new Gio.FileIcon({ file: Gio.File.new_for_path(iconPath) });
 
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
 
     const hourlyTargetMl = config.hourlyTargetMl || 250;
     const totalDailyTargetMl = WORK_SHIFT_HOURS * hourlyTargetMl;

@@ -15,7 +15,7 @@ import { attachResponsiveScaler } from '../../shell/widgetUIUtils.js';
 const BASE_CARD_WIDTH = 110;
 const BASE_CARD_HEIGHT = 110;
 
-const BORDER_ALPHA = 0.14;
+
 const BADGE_BG_ALPHA = 0.12;
 const SUB_LABEL_OPACITY = 0.65;
 const CARD_BG_DARK_ALPHA = 0.05;
@@ -63,7 +63,6 @@ export function buildCardsLayout(layout, widgetData, extensionPath) {
     const textColor = resolveWidgetForegroundColor(widgetData);
     const accentHex = widgetData.globalAccentColor || '#3584e4';
 
-    layout.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)}; border-radius: 12px;`;
 
     let iconName = 'weather-clear-symbolic';
     let defaultLabel = 'UV INDEX';

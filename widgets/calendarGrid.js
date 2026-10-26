@@ -22,7 +22,7 @@ const SECONDARY_TEXT_OPACITY = 0.3;
 const WEEKDAY_TEXT_OPACITY = 0.45;
 const WEEKEND_TEXT_OPACITY = 0.55;
 const HEADER_GAP_PX = 10;
-const BORDER_ALPHA = 0.14;
+
 
 function getDaysInMonth(year, month) {
     if (month === 2 && ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0))
@@ -35,7 +35,7 @@ export function createCalendarGridNode(config, width, height, xPosition, yPositi
     const fontFamily = resolveExplicitFontFamily(config);
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const state = {
         scale: Math.min(width / REF_SIZE_PX, height / REF_SIZE_PX),

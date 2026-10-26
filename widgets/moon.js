@@ -26,7 +26,7 @@ import { isActorDestroyed } from '../utils/actorLifecycle.js';
 const REF_WIDTH_PX = 320;
 const REF_HEIGHT_PX = 160;
 const CONTAINER_PADDING_PX = 16;
-const BORDER_ALPHA = 0.14;
+
 
 // Tipográfiai alapméretek
 const TITLE_FONT_SIZE_PX = 16;
@@ -317,8 +317,8 @@ export function createMoonNode(config, width, height, xPosition, yPosition) {
         scale = Math.min(currentWidth / REF_WIDTH_PX, currentHeight / REF_HEIGHT_PX);
         const px = (v) => Math.max(1, Math.round(v * scale));
 
-        container.style = `${fontCss}background-color: ${bgColor}; border-radius: ${borderRadius}px; `
-            + `padding: ${px(CONTAINER_PADDING_PX)}px; border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+        container.set_style(`${container.style || ''} padding: ${px(CONTAINER_PADDING_PX)}px;`);
+
 
         const canvasSize = px(MOON_CANVAS_SIZE_PX);
         moonCanvasBox.set_size(canvasSize, canvasSize);

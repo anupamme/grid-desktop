@@ -5,7 +5,7 @@ import { SECONDARY_OPACITY, cssColorToRgba, resolveExplicitFontFamily, resolveWi
 import { createWidgetContainer, connectTimerCleanup, startPollingTimer, attachResponsiveScaler } from '../shell/widgetUIUtils.js';
 
 const DATE_POLL_INTERVAL_MS = 60_000;
-const BORDER_ALPHA = 0.14;
+
 const BASE_SCALE_SIZE = 200;
 const TOP_BAR_RADIUS_PX = 12;
 const DAY_FONT_SIZE_PX = 13;
@@ -31,7 +31,7 @@ export function createCalendarNode(config, width, height, xPosition, yPosition) 
     const textColor = resolveWidgetForegroundColor(config);
     const fontFamily = resolveExplicitFontFamily(config);
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     let scale = Math.min(width / BASE_SCALE_SIZE, height / BASE_SCALE_SIZE);
 

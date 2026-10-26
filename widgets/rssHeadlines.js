@@ -22,7 +22,7 @@ const REF_WIDTH_PX = 220;
 const REF_HEIGHT_PX = 220;
 const ARTICLE_TITLE_MAX_CHARS = 160;
 const SOURCE_NAME_MAX_CHARS = 30;
-const BORDER_ALPHA = 0.14;
+
 
 const ROTATE_INTERVAL_SECONDS = 15;
 const FADE_DURATION_MS = 150;
@@ -275,9 +275,6 @@ export function createRssHeadlinesNode(config, width, height, xPosition, yPositi
         const titleFontSize = Math.max(9, Math.round(10.5 * scale));
         const articleTitleSize = Math.max(1, Math.round(17 * scale));
         const footerFontSize = Math.max(8, Math.round(8.5 * scale));
-
-        container.style = `${fontCss}background-color: ${bgColor}; border-radius: ${borderRadius}px;`
-            + `border: 1px solid ${textRgba(BORDER_ALPHA)};`;
 
         mainLayout.style = `padding: ${padding}px; spacing: ${Math.round(6 * scale)}px;`;
 

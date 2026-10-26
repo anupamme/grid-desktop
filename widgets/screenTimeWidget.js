@@ -17,7 +17,7 @@ import { isActorDestroyed } from '../utils/actorLifecycle.js';
 import { toDateString } from '../utils/moodStore.js';
 
 const REF_WIDTH = 360;
-const BORDER_ALPHA = 0.14;
+
 const REF_HEIGHT = 170;
 
 const MAIN_PANEL_WIDTH_RATIO = 0.65;
@@ -99,7 +99,7 @@ export function createScreenTimeNode(config, width, height, xPosition, yPosition
     const accentHex = config.globalAccentColor || '#3584e4';
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
     const textRgba = (alpha) => cssColorToRgba(textColor, alpha);
-    container.style += ` border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+;
 
     const state = {
         selectedDate: null,

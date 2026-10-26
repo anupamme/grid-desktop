@@ -4,8 +4,9 @@ import Clutter from 'gi://Clutter';
 import { createAnimatedImageNode } from './gif.js';
 import { listImagesInFolder, attachCaptionOverlay } from './mediaCommon.js';
 import { resolveWidgetBackgroundColor, resolveWidgetForegroundColor, resolveExplicitFontFamily, buildBaseWidgetStyle } from '../../utils/widgetUtils.js';
-import { WidgetActor, connectTimerCleanup } from '../../shell/widgetUIUtils.js';
+import { WidgetActor, connectTimerCleanup, resolveWidgetGlassHighlight } from '../../shell/widgetUIUtils.js';
 import { isActorDestroyed, watchActorLifecycle } from '../../utils/actorLifecycle.js';
+
 
 const DEFAULT_SLIDE_INTERVAL_SECONDS = 10;
 const MILLISECONDS_PER_SECOND = 1000;
@@ -42,6 +43,7 @@ function createImageLayer(imagePath, borderRadius, width, height, animateGif) {
 }
 
 export function createSlideshowNode(widgetData, width, height, xPosition, yPosition) {
+    const glassHighlight = resolveWidgetGlassHighlight(widgetData);
     const baseStyle = buildBaseWidgetStyle(widgetData);
     const borderRadius = widgetData.appliedBorderRadius || 0;
     const slideInterval = (widgetData.intervalSeconds || DEFAULT_SLIDE_INTERVAL_SECONDS) * MILLISECONDS_PER_SECOND;
@@ -49,7 +51,7 @@ export function createSlideshowNode(widgetData, width, height, xPosition, yPosit
     const backgroundColor = resolveWidgetBackgroundColor(widgetData);
 
     const container = new WidgetActor({
-        style: `background-color: ${backgroundColor}; ${baseStyle}`,
+        style: `background-color: ${backgroundColor}; ${baseStyle} ${glassHighlight}`,
         x: xPosition,
         y: yPosition,
         width: width,

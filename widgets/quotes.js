@@ -9,7 +9,7 @@ import { createWidgetContainer, registerWidgetCleanup, attachResponsiveScaler } 
 import { isActorDestroyed } from '../utils/actorLifecycle.js';
 
 const QUOTE_ROTATE_INTERVAL_SEC = 30;
-const BORDER_ALPHA = 0.14;
+
 const QUOTES_URL = 'https://raw.githubusercontent.com/rebatnaath/gridgets/main/github/quotesData.json';
 
 export function createQuotesNode(config, width, height, xPosition, yPosition) {
@@ -28,7 +28,6 @@ export function createQuotesNode(config, width, height, xPosition, yPosition) {
         y_expand: true,
         style: `padding: ${Math.max(1, Math.round(14 * scale))}px;`,
     });
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
     container.add_child(outerBox);
 
     const quoteLabel = new St.Label({

@@ -29,7 +29,7 @@ const MAX_CONTRIBUTION_WEEKS = 30;
 const AVATAR_REQUEST_SIZE_PX = 64;
 
 const LEVEL_COLORS = ['#39d353', '#26a641', '#006d32', '#0e4429'];
-const BORDER_ALPHA = 0.14;
+
 const REFRESH_INTERVAL_SECONDS = 600;
 const HTTP_STATUS_OK = 200;
 const decoder = new TextDecoder();
@@ -49,7 +49,7 @@ export function createGithubNode(config, width, height, xPosition, yPosition) {
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
     const textRgba = (alpha) => cssColorToRgba(textColor, alpha);
     const emptyCellColor = textRgba(0.15);
-    container.style += ` border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+  
 
     let username = typeof config.username === 'string' ? config.username : '';
     let scale = Math.min(width / REF_WIDTH_PX, height / REF_HEIGHT_PX);

@@ -25,7 +25,7 @@ const MIN_ARCH_HEIGHT_FACTOR = 0.3;
 const GAUSS_EDGE_FALLOFF = 0.07;
 const ARCH_SIGMA_SPAN_FRACTION = 0.5 / Math.sqrt(2 * Math.log(1 / GAUSS_EDGE_FALLOFF));
 const ARC_TRACK_ALPHA = 0.15;
-const BORDER_ALPHA = 0.14;
+
 
 const SUNRISE_ICON_NAME = 'daytime-sunrise-symbolic';
 const SUNSET_ICON_NAME = 'daytime-sunset-symbolic';
@@ -431,9 +431,7 @@ export function createSunScheduleNode(config, width, height, xPosition, yPositio
         scale = Math.min(currentWidth / REF_WIDTH_PX, currentHeight / REF_HEIGHT_PX);
         const px = (v) => Math.max(1, Math.round(v * scale));
 
-        container.style = `${fontCss}background-color: ${bgColor}; border-radius: ${borderRadius}px;`
-            + `padding: ${px(CONTAINER_PADDING_V_PX)}px ${px(CONTAINER_PADDING_H_PX)}px;`
-            + `border: 1px solid ${textRgba(BORDER_ALPHA)};`;
+        container.set_style(`${container.style || ''} padding: ${px(CONTAINER_PADDING_V_PX)}px ${px(CONTAINER_PADDING_H_PX)}px;`);
 
         cityLabel.style = `${fontCss}font-size: ${px(HEADER_FONT_SIZE_PX)}px;`
             + `color: ${textColor}; opacity: ${SECONDARY_OPACITY};`;

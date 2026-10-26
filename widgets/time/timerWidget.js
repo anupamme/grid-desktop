@@ -13,7 +13,6 @@ const TIMER_ARC_LINE_WIDTH_RATIO = 0.06;
 const BASE_CONTAINER_SIZE = 220;
 const BASE_ARC_MARGIN = 24;
 const BASE_ARC_MIN_SIZE = 80;
-const BORDER_ALPHA = 0.14;
 
 function formatTime(totalSeconds) {
     const s = Math.max(0, Math.floor(totalSeconds));
@@ -33,7 +32,7 @@ export function createTimerNode(config, width, height, xPosition, yPosition) {
     const textColor = resolveWidgetForegroundColor(config);
     const accentHex = config.globalAccentColor || '#3584e4';
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     // Alapértelmezett időtartam (másodpercben, pl. prefs-ből: config.timerDurationSeconds vagy 5 perc)
     const initialDuration = Number(config.timerDurationSeconds) || 300;

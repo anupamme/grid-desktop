@@ -23,7 +23,7 @@ const DOT_GRID_GAP_PX = 8;
 const GRID_COLUMNS = 7;
 const TOTAL_DAYS = 28;
 const TODAY_DOT_BORDER_PX = 2;
-const BORDER_ALPHA = 0.14;
+
 
 // Mood ramp; Adwaita face icons double as pickers, colors drive the history grid.
 const MOOD_LEVELS = [
@@ -62,7 +62,7 @@ export function createMoodNode(config, width, height, xPosition, yPosition) {
 
     const textBytes = parseCssColor(textColor);
     const textRgb = () => `${Math.round(textBytes.r * 255)},${Math.round(textBytes.g * 255)},${Math.round(textBytes.b * 255)}`;
-    container.style += ` border: 1px solid rgba(${textRgb()}, ${BORDER_ALPHA});`;
+
 
     let scale = Math.min(width / REF_WIDTH_PX, height / REF_HEIGHT_PX);
 

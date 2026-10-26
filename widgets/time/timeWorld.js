@@ -20,7 +20,7 @@ import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 
 const REF_WIDTH = 220;
 const REF_HEIGHT = 220;
-const BORDER_ALPHA = 0.14;
+
 
 const DEFAULT_CITIES = [
     { name: 'London', timezone: 'Europe/London', country: 'GB', primary: true },
@@ -262,7 +262,7 @@ export function createWorldTimeNode(widgetData, width, height, xPosition, yPosit
     const textColor = resolveWidgetForegroundColor(widgetData);
 
     const widgetNode = createWidgetContainer(widgetData, width, height, xPosition, yPosition);
-    widgetNode.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const cities = widgetData.cities || DEFAULT_CITIES;
     const ui = buildWorldClockUI(widgetNode, fontCss, textColor, cities);

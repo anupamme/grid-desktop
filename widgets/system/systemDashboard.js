@@ -30,7 +30,6 @@ const BASE_BADGE_FONT_SIZE_PX = 15;
 const BASE_NET_LABEL_FONT_SIZE_PX = 16;
 const BASE_NET_VALUE_FONT_SIZE_PX = 26;
 const BASE_NET_UNIT_FONT_SIZE_PX = 16;
-const BORDER_ALPHA = 0.14;
 const CARD_BG_DARK_ALPHA = 0.05;
 const CARD_BG_LIGHT_ALPHA = 0.04;
 const CARD_BORDER_DARK_ALPHA = 0.06;
@@ -105,7 +104,7 @@ export function createSystemDashboardNode(config, width, height, xPosition, yPos
     const textColor = resolveWidgetForegroundColor(config);
     const accentHex = config.globalAccentColor || '#3584e4';
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    container.style += ` border: 1px solid ${cssColorToRgba(textColor, BORDER_ALPHA)};`;
+
 
     const scale = Math.min(width / BASE_CONTAINER_WIDTH_PX, height / BASE_CONTAINER_HEIGHT_PX);
     const cardPadding = Math.round(BASE_CARD_PADDING_PX * scale);

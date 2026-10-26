@@ -38,7 +38,6 @@ export function buildLargeLayout(config, state, width) {
     const halfWidth = Math.floor(width / 2);
 
     state.container.clip_to_allocation = true;
-    state.container.style = `border-radius: ${cornerRadius}px;`;
 
     const splitContainer = new St.BoxLayout({
         orientation: Clutter.Orientation.HORIZONTAL,

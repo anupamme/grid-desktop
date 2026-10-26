@@ -20,7 +20,7 @@ const ROW_GAP_PX = 8;
 const ROW_PADDING_PX = 8;
 const ROW_RADIUS_PX = 14;
 const CIRCLE_SIZE_PX = 22;
-const BORDER_ALPHA = 0.14;
+
 
 const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const DEFAULT_PALETTE = ['#C2E7FF', '#A2C9C2', '#FFE082', '#D7AEFB', '#FFB4AB'];
@@ -73,7 +73,7 @@ export function createHabitTrackerNode(config, width, height, xPosition, yPositi
 
     const textBytes = parseCssColor(textColor);
     const textRgb = () => `${Math.round(textBytes.r * 255)},${Math.round(textBytes.g * 255)},${Math.round(textBytes.b * 255)}`;
-    container.style += ` border: 1px solid rgba(${textRgb()}, ${BORDER_ALPHA});`;
+ 
 
     let scale = Math.min(width / REF_WIDTH_PX, height / REF_HEIGHT_PX);
 
