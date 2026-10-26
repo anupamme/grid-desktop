@@ -61,8 +61,8 @@ import {
 
 import { STORE_CATEGORIES, STORE_WIDGETS } from './widgetCatalog.js';
 
-const THUMBNAIL_WIDTH = 84;
-const THUMBNAIL_HEIGHT = 44;
+const THUMBNAIL_WIDTH = 96;
+const THUMBNAIL_HEIGHT = 64;
 
 function escapeMarkup(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -75,12 +75,12 @@ function buildRowPrefix(extensionPath, thumbnail, fallbackIconName) {
         margin_end: 12,
     });
     // Kőkemény fix méret a konténernek:
-    box.set_size_request(84, 44);
+    box.set_size_request(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
 
     if (thumbnail) {
         // Gtk.Picture HELYETT Gtk.Image fix fájlbetöltéssel:
         const img = Gtk.Image.new_from_file(`${extensionPath}/assets/thumbnails/${thumbnail}`);
-        img.set_pixel_size(44); // Fix méret, soha, semmilyen körülmények között nem tud megnőni!
+        img.set_pixel_size(THUMBNAIL_HEIGHT); // Fix méret, soha, semmilyen körülmények között nem tud megnőni!
         img.set_halign(Gtk.Align.CENTER);
         img.set_valign(Gtk.Align.CENTER);
         box.append(img);
