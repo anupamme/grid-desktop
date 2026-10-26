@@ -15,6 +15,9 @@ import { buildBarsLayout, attachBarsScaler } from './weatherBars.js';
 import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 import { buildCardsLayout, attachCardsScaler } from './weatherCards.js';
 
+export { createMoonNode } from './moon.js';
+export { createSunScheduleNode } from './solarSchedule.js';
+
 export function createWeatherNode(widgetData, width, height, xPosition, yPosition, isDynamicColor, isDynamicImage) {
     const extensionPath = widgetData.extensionPath || '';
     const widgetNode = createWidgetContainer(widgetData, width, height, xPosition, yPosition);

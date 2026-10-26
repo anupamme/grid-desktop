@@ -1,62 +1,83 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 
+// ── Widget Adders (kategóriák szerint rendezve) ─────────────────────────
 import {
-    addTimeWidget,
-    addAnalogClockWidget,
-    addTimerWidget,
-    addStopWatchWidget,
+    // Weather
     addWeatherWidget,
     addWeatherBarsWidget,
     addWeatherCardsWidget,
+
+    // Media
     addMusicWidget,
-    addPomodoroWidget,
-    addPomodoroFocusWidget,
+
+    // System Monitor
+    addAudioOutputWidget,
+    addBatteryStatusWidget,
+    addBluetoothDevicesWidget,
+    addControlsSlidersWidget,
     addCpuRamWidget,
     addNetworkSpeedWidget,
-    addSystemDashboardWidget,
-    addBatteryStatusWidget,
-    addNotesWidget,
-    addClipboardWidget,
-    addCalendarWidget,
-    addQuotesWidget,
-    addScreenTimeWidget,
-    addCalendarGridWidget,
-    addTodoWidget,
-    addMoodWidget,
-    addSystemInfoWidget,
+    addPingWidget,
+    addPowerProfilesWidget,
+    addPowerTogglesWidget,
+    addQuickTogglesWidget,
     addResourceWheelWidget,
+    addStorageBarWidget,
+    addSystemDashboardWidget,
+    addSystemInfoWidget,
+
+    // Focus & Productivity
+    addClipboardWidget,
+    addMailGoaWidget,
+    addNotesWidget,
+    addPomodoroFocusWidget,
+    addPomodoroWidget,
+    addTodoWidget,
+
+    // Time & Calendar
+    addAnalogClockWidget,
+    addBinaryWidget,
+    addCalendarGridWidget,
+    addCalendarWidget,
+    addStopWatchWidget,
+    addTimeWidget,
+    addTimerWidget,
+
+    // Personal
+    addCalendarTasksWidget,
+    addCryptoWidget,
     addCurrencyTrackerWidget,
     addHabitTrackerWidget,
-    addQuickTogglesWidget,
-    addAudioOutputWidget,
-    addControlsSlidersWidget,
-    addPowerProfilesWidget,
-    addPingWidget,
-    addStorageBarWidget,
-    addCryptoWidget,
-    addTodayHistoryWidget,
-    addPowerTogglesWidget,
-    addWorldAnalogWidget,
-    addCalendarTasksWidget,
-    addBluetoothDevicesWidget,
-    addMailGoaWidget,
     addLavaLampWidget,
-    addBinaryWidget
+    addMoodWidget,
+    addQuotesWidget,
+    addScreenTimeWidget,
+    addTodayHistoryWidget
 } from './widgetAdders.js';
 
+// ── Widget Dialogs (kategóriák szerint rendezve) ────────────────────────
 import {
-    openAddAppLauncherDialog,
+    // Weather
+    openAddMoonDialog,
+    openAddSunScheduleDialog,
+
+    // Media
     openAddImageDialog,
     openAddSlideshowDialog,
-    openAddWorldClockDialog,
-    openAddGithubDialog,
-    openAddRssHeadlinesDialog,
-    openAddSunScheduleDialog,
+
+    // Focus & Productivity
+    openAddAppLauncherDialog,
+
+    // Time & Calendar
     openAddCountdownDialog,
     openAddWorldAnalogDialog,
-    openAddWatermindDialog,
-    openAddMoonDialog
+    openAddWorldClockDialog,
+
+    // Personal
+    openAddGithubDialog,
+    openAddRssHeadlinesDialog,
+    openAddWatermindDialog
 } from './widgetAddDialogs.js';
 
 import { STORE_CATEGORIES, STORE_WIDGETS } from './widgetCatalog.js';
@@ -193,20 +214,25 @@ export function buildStorePage(window, settings, extensionPath) {
         {
             title: 'System Monitor',
             items: [
+                // Fő műszerfal és erőforrások
                 def(STORE_WIDGETS.systemDashboard, () => addSystemDashboardWidget(settings, 4, 4)),
                 def(STORE_WIDGETS.systemMonitor, () => addCpuRamWidget(settings, 4, 2)),
-                def(STORE_WIDGETS.storageBar, () => addStorageBarWidget(settings)),
-                def(STORE_WIDGETS.resourceWheel, () => addResourceWheelWidget(settings, 'cpu', 5, 4)),
                 def(STORE_WIDGETS.systemInfo, () => addSystemInfoWidget(settings, 'cpu', 2, 2)),
+                def(STORE_WIDGETS.resourceWheel, () => addResourceWheelWidget(settings, 'cpu', 5, 4)),
+                def(STORE_WIDGETS.storageBar, () => addStorageBarWidget(settings)),
+                def(STORE_WIDGETS.batteryStatus, () => addBatteryStatusWidget(settings, 4, 3)),
+
+                // Hálózat
                 def(STORE_WIDGETS.networkSpeed, () => addNetworkSpeedWidget(settings, 3, 2)),
                 def(STORE_WIDGETS.pingMonitor, () => addPingWidget(settings)),
+
+                // Hardver- és gyorskapcsolók
                 def(STORE_WIDGETS.quickToggles, () => addQuickTogglesWidget(settings)),
                 def(STORE_WIDGETS.powerToggles, () => addPowerTogglesWidget(settings)),
                 def(STORE_WIDGETS.powerProfiles, () => addPowerProfilesWidget(settings)),
-                def(STORE_WIDGETS.batteryStatus, () => addBatteryStatusWidget(settings, 4, 3)),
+                def(STORE_WIDGETS.controlsSliders, () => addControlsSlidersWidget(settings)),
                 def(STORE_WIDGETS.audioOutput, () => addAudioOutputWidget(settings)),
                 def(STORE_WIDGETS.bluetoothDevices, () => addBluetoothDevicesWidget(settings)),
-                def(STORE_WIDGETS.controlsSliders, () => addControlsSlidersWidget(settings)),
             ]
         },
         {
@@ -224,32 +250,37 @@ export function buildStorePage(window, settings, extensionPath) {
         {
             title: 'Time & Calendar',
             items: [
+                // Órák
                 def(STORE_WIDGETS[STORE_CATEGORIES.time[0]], () => addTimeWidget(settings, 3, 2, 'digital')),
                 def(STORE_WIDGETS.analogClock, () => addAnalogClockWidget(settings, 'basic', 3, 3)),
                 def(STORE_WIDGETS.worldClock, () => openAddWorldClockDialog(window, settings)),
                 def(STORE_WIDGETS.worldAnalog, () => openAddWorldAnalogDialog(window, settings)),
-                def(STORE_WIDGETS.calendarWidget, () => addCalendarWidget(settings)),
-                def(STORE_WIDGETS.calendarGrid, () => addCalendarGridWidget(settings)),
+                def(STORE_WIDGETS.binary, () => addBinaryWidget(settings)),
+
+                // Időzítők
+                def(STORE_WIDGETS.stopwatch, () => addStopWatchWidget(settings)),
                 def(STORE_WIDGETS.timer, () => addTimerWidget(settings)),
                 def(STORE_WIDGETS.countdown, () => openAddCountdownDialog(window, settings)),
-                def(STORE_WIDGETS.stopwatch, () => addStopWatchWidget(settings)),
-                def(STORE_WIDGETS.binary, () => addBinaryWidget(settings)),
+
+                // Naptárak
+                def(STORE_WIDGETS.calendarWidget, () => addCalendarWidget(settings)),
+                def(STORE_WIDGETS.calendarGrid, () => addCalendarGridWidget(settings)),
             ]
         },
         {
             title: 'Personal',
             items: [
+                def(STORE_WIDGETS.todayHistory, () => addTodayHistoryWidget(settings)),
+                def(STORE_WIDGETS.quotesWidget, () => addQuotesWidget(settings)),
+                def(STORE_WIDGETS.rssHeadlinesWidget, () => openAddRssHeadlinesDialog(window, settings)),
+                def(STORE_WIDGETS.calendarTasks, () => addCalendarTasksWidget(settings)),
+                def(STORE_WIDGETS.habitTracker, () => addHabitTrackerWidget(settings)),
+                def(STORE_WIDGETS.moodWidget, () => addMoodWidget(settings)),
+                def(STORE_WIDGETS.watermind, () => openAddWatermindDialog(window, settings)),
+                def(STORE_WIDGETS.screenTimeWidget, () => addScreenTimeWidget(settings)),
                 def(STORE_WIDGETS.currencyTracker, () => addCurrencyTrackerWidget(settings)),
                 def(STORE_WIDGETS.cryptoWidget, () => addCryptoWidget(settings)),
                 def(STORE_WIDGETS.githubWidget, () => openAddGithubDialog(window, settings)),
-                def(STORE_WIDGETS.habitTracker, () => addHabitTrackerWidget(settings)),
-                def(STORE_WIDGETS.watermind, () => openAddWatermindDialog(window, settings)),
-                def(STORE_WIDGETS.moodWidget, () => addMoodWidget(settings)),
-                def(STORE_WIDGETS.screenTimeWidget, () => addScreenTimeWidget(settings)),
-                def(STORE_WIDGETS.todayHistory, () => addTodayHistoryWidget(settings)),
-                def(STORE_WIDGETS.rssHeadlinesWidget, () => openAddRssHeadlinesDialog(window, settings)),
-                def(STORE_WIDGETS.quotesWidget, () => addQuotesWidget(settings)),
-                def(STORE_WIDGETS.calendarTasks, () => addCalendarTasksWidget(settings)),
                 def(STORE_WIDGETS.lavaLamp, () => addLavaLampWidget(settings)),
             ]
         }

@@ -16,6 +16,10 @@ export {
     createBinaryNode
 };
 
+export { createCalendarNode } from './calendar.js';
+export { createCalendarGridNode } from './calendarGrid.js';
+export { createStopwatchNode } from './stopwatchWidget.js';
+
 export function createTimeNode(widgetData, width, height, xPosition, yPosition) {
     if (widgetData.layout === 'analog' || widgetData.type === 'analogClock') {
         return createAnalogTimeNode(widgetData, width, height, xPosition, yPosition);

@@ -147,7 +147,7 @@ export function createWorldTimeAnalogNode(config, width, height, xPosition, yPos
     const finalBgColor = cssColorToRgba(rawBgColor, opacity / 100);
 
     const textColor = resolveWidgetForegroundColor(config);
-    const fontFamily = resolveExplicitFontFamily(config) || 'Sans';
+    const fontFamily = resolveExplicitFontFamily(config);
     const borderRadius = config.appliedBorderRadius || 0;
 
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);

@@ -28,7 +28,7 @@ const RINGS = [
 ];
 
 export function createResourceWheelNode(config, width, height, xPosition, yPosition) {
-    const fontFamily = resolveExplicitFontFamily(config) || 'Sans';
+    const fontFamily = resolveExplicitFontFamily(config);
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const parsedText = parseCssColor(textColor);

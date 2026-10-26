@@ -11,3 +11,4 @@ export { createPowerProfilesNode } from './powerProfiles.js';
 export { createStorageBarNode } from './storageBarWidget.js';
 export { createPowerTogglesNode } from './powerToggles.js';
 export { createBluetoothDevicesNode } from './bluetoothDevicesWidget.js';
+export { createPingNode } from './pingWidget.js';

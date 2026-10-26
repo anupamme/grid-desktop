@@ -1,59 +1,80 @@
-import { createTimerNode } from '../widgets/time/timerWidget.js';
-import { 
-    createTimeNode, 
-    createWorldTimeAnalogNode,
-    createBinaryNode
-} from '../widgets/time/index.js';
-import { createCountdownNode } from '../widgets/time/countdownWidget.js';
-import { createStopwatchNode } from '../widgets/time/stopwatchWidget.js';
-import { createWeatherNode } from '../widgets/weather/index.js';
-import { createMusicNode } from '../widgets/music/index.js';
-import { createNotesNode } from '../widgets/notes.js';
-import { createClipboardNode } from '../widgets/clipboard.js';
-import { createCalendarNode } from '../widgets/calendar.js';
-import { createQuotesNode } from '../widgets/quotes.js';
-import { createCalendarTasksNode } from '../widgets/calendarTasks.js';
-import {
-    createCpuRamNode,
-    createNetworkSpeedNode,
-    createSystemDashboardNode,
-    createBatteryStatusNode,
-    createSystemInfoNode,
-    createResourceWheelNode,
-    createQuickTogglesNode,
-    createAudioOutputNode,
-    createControlsSlidersNode,
-    createPowerProfilesNode,
-    createStorageBarNode,
-    createPowerTogglesNode,
-    createBluetoothDevicesNode
-} from '../widgets/system/index.js';
-import { createPomodoroNode } from '../widgets/pomodoro.js';
-import { createPomodoroFocusNode } from '../widgets/pomodoroFocus.js';
-import { createAppLauncherNode } from '../widgets/appLauncher.js';
-import { createScreenTimeNode } from '../widgets/screenTimeWidget.js';
-import { createCalendarGridNode } from '../widgets/calendarGrid.js';
-import { createTodoNode } from '../widgets/todo.js';
-import { createGithubNode } from '../widgets/github.js';
-import { createSunScheduleNode } from '../widgets/solarSchedule.js';
-import { createRssHeadlinesNode } from '../widgets/rssHeadlines.js';
-import { createCurrencyTrackerNode } from '../widgets/currencyTracker.js';
-import { createMoodNode } from '../widgets/moodLogger.js';
-import { createHabitTrackerNode } from '../widgets/habitTracker.js';
-import {
-    createStaticImageNode,
-    createAnimatedImageNode,
-    createSlideshowNode
-} from '../widgets/media/index.js';
+// Utilities & Desktop
 import { isAnimatedImageFile } from '../utils/widgetUtils.js';
 import { createDesktopIconNode } from '../widgets/desktopIcon.js';
-import { createPingNode } from '../widgets/system/pingWidget.js';
-import { createCryptoTrackerNode } from '../widgets/cryptoWidget.js';
-import { createTodayHistoryNode } from '../widgets/todayHistory.js';
-import { createWatermindNode } from '../widgets/watermind.js';
-import { createMailGoaNode } from '../widgets/mailGoa.js';
-import { createLavaLampNode } from '../widgets/lavaLampWidget.js';
-import { createMoonNode } from '../widgets/moon.js';
+
+// Weather
+import { 
+    createWeatherNode, 
+    createMoonNode, 
+    createSunScheduleNode 
+} from '../widgets/weather/index.js';
+
+// Media & Music
+import { 
+    createAnimatedImageNode, 
+    createSlideshowNode, 
+    createStaticImageNode 
+} from '../widgets/media/index.js';
+import { 
+    createMusicNode 
+} from '../widgets/music/index.js';
+
+// System
+import {
+    createAudioOutputNode,
+    createBatteryStatusNode,
+    createBluetoothDevicesNode,
+    createControlsSlidersNode,
+    createCpuRamNode,
+    createNetworkSpeedNode,
+    createPingNode,
+    createPowerProfilesNode,
+    createPowerTogglesNode,
+    createQuickTogglesNode,
+    createResourceWheelNode,
+    createStorageBarNode,
+    createSystemDashboardNode,
+    createSystemInfoNode
+} from '../widgets/system/index.js';
+
+// Time & Calendar
+import {
+    createBinaryNode,
+    createCalendarGridNode,
+    createCalendarNode,
+    createCountdownNode,
+    createStopwatchNode,
+    createTimeNode,
+    createTimerNode,
+    createWorldTimeAnalogNode
+} from '../widgets/time/index.js';
+
+// Focus & Productivity
+import {
+    createAppLauncherNode,
+    createClipboardNode,
+    createMailGoaNode,
+    createNotesNode,
+    createPomodoroFocusNode,
+    createPomodoroNode,
+    createTodoNode
+} from '../widgets/productivity/index.js';
+
+// Personal
+import {
+    createCalendarTasksNode,
+    createCryptoTrackerNode,
+    createCurrencyTrackerNode,
+    createGithubNode,
+    createHabitTrackerNode,
+    createLavaLampNode,
+    createMoodNode,
+    createQuotesNode,
+    createRssHeadlinesNode,
+    createScreenTimeNode,
+    createTodayHistoryNode,
+    createWatermindNode
+} from '../widgets/personal/index.js';
 
 const weatherCreator = (data, w, h, x, y) => {
     const dynamicColor = data.dynamicColor !== undefined ? data.dynamicColor : (data.globalWeatherDynamicColor !== false);
