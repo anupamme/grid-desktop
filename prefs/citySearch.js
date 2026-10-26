@@ -57,15 +57,17 @@ function fetchRemoteCitiesDatabase() {
 }
 
 function buildCitySearchScaffold(container, labelTitle, placeholderText) {
-    const group = new Adw.PreferencesGroup({
-        title: labelTitle,
-    });
+    // Ha a container már egy Adw.PreferencesGroup, ne hozzunk létre újabb csoportot!
+    const isAlreadyGroup = container instanceof Adw.PreferencesGroup;
+    const targetGroup = isAlreadyGroup 
+        ? container 
+        : new Adw.PreferencesGroup({ title: labelTitle });
 
     const searchEntryRow = new Adw.EntryRow({
         title: placeholderText,
         show_apply_button: false,
     });
-    group.add(searchEntryRow);
+    targetGroup.add(searchEntryRow);
 
     const statusLabel = new Gtk.Label({
         xalign: 0,
@@ -92,13 +94,15 @@ function buildCitySearchScaffold(container, labelTitle, placeholderText) {
     scrolledWindow.set_child(resultsListBox);
     scrolledWindow.set_visible(false);
 
-    group.add(statusLabel);
-    group.add(scrolledWindow);
+    targetGroup.add(scrolledWindow);
 
-    if (typeof container.add === 'function') {
-        container.add(group);
-    } else if (typeof container.append === 'function') {
-        container.append(group);
+    // Csak akkor fűzzük hozzá a szülőhöz a targetGroup-ot, ha újonnan hoztuk létre:
+    if (!isAlreadyGroup) {
+        if (typeof container.add === 'function') {
+            container.add(targetGroup);
+        } else if (typeof container.append === 'function') {
+            container.append(targetGroup);
+        }
     }
 
     return { searchEntryRow, statusLabel, resultsListBox, scrolledWindow };

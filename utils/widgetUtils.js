@@ -65,7 +65,7 @@ export const MIN_WIDGET_SIZES = Object.freeze({
     'audioOutput': { minCols: 4, minRows: 4 },
     'controlsSliders': { minCols: 5, minRows: 3 },
     'powerProfiles': { minCols: 4, minRows: 4 },
-    'powerToggles': { minCols: 2, minRows: 2 },
+    'powerToggles': { minCols: 4, minRows: 4 },
     'ping-monitor': { minCols: 2, minRows: 2 },
     'storageBar': { minCols: 7, minRows: 4 },
     'cryptoWidget': { minCols: 7, minRows: 4 },

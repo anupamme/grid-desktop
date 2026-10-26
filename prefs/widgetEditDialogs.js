@@ -120,11 +120,15 @@ export function buildWidgetEditPanel(parentWindow, widget, settings, onSavedCall
             break;
     }
 
+    const saveRow = new Adw.ActionRow({
+        title: 'Apply Settings',
+        subtitle: 'Save changes made to this widget',
+    });
+
     const saveButton = new Gtk.Button({
         label: 'Save Changes',
-        css_classes: ['suggested-action', 'pill'],
-        halign: Gtk.Align.END,
-        margin_top: 8,
+        css_classes: ['suggested-action'],
+        valign: Gtk.Align.CENTER,
     });
 
     saveButton.connect('clicked', () => {
@@ -145,6 +149,8 @@ export function buildWidgetEditPanel(parentWindow, widget, settings, onSavedCall
         }
     });
 
-    box.append(saveButton);
+    saveRow.add_suffix(saveButton);
+    saveRow.set_activatable_widget(saveButton);
+    group.add(saveRow);
     return box;
 }

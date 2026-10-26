@@ -144,6 +144,16 @@
        <default>34</default>
        <summary>Base grid cell size in pixels</summary>
    </key>
+   <key name="weather-lat" type="d">
+      <default>47.498</default>
+      <summary>Default city latitude</summary>
+      <description>Latitude coordinate for default city.</description>
+    </key>
+    <key name="weather-lon" type="d">
+      <default>19.039</default>
+      <summary>Default city longitude</summary>
+      <description>Longitude coordinate for default city.</description>
+    </key>
   </schema>
 
 </schemalist>

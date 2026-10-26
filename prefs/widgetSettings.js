@@ -340,8 +340,8 @@ export function buildWeatherSettings(container, widget, settings, saveHandlers) 
         currentLocation.latitude = widget.lat;
         currentLocation.longitude = widget.lon;
     }
-    const cityPicker = buildOpenMeteoCitySearchRow(container, 'City Location', currentLocation);
 
+    // 1. Kapcsolók közvetlenül a kártyában
     const isDynamicColorActive = widget.dynamicColor !== undefined
         ? widget.dynamicColor
         : settings.get_boolean('weather-dynamic-color');
@@ -365,6 +365,9 @@ export function buildWeatherSettings(container, widget, settings, saveHandlers) 
         active: widget.useFahrenheit !== undefined ? widget.useFahrenheit : settings.get_boolean('weather-use-fahrenheit'),
     });
     container.add(fahrenheitRow);
+
+    // 2. Városválasztó sor
+    const cityPicker = buildOpenMeteoCitySearchRow(container, 'City Location', currentLocation);
 
     const globalDynamicColorDefault = settings.get_boolean('weather-dynamic-color');
     const globalDynamicImageDefault = settings.get_boolean('weather-dynamic-image');

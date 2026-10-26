@@ -267,7 +267,7 @@ export function addTodayHistoryWidget(settings, width = 4, height = 4) {
     }, width, height);
 }
 
-export function addPowerTogglesWidget(settings, width = 2, height = 2) {
+export function addPowerTogglesWidget(settings, width = 4, height = 4) {
     addWidget(settings, {
         id: nextWidgetId(settings, 'power-toggles'),
         type: 'powerToggles',

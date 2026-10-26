@@ -321,7 +321,7 @@ export const STORE_WIDGETS = Object.freeze({
     powerToggles: {
         title: 'Power Controls',
         description: 'Quick power management buttons for suspend, reboot, shutdown, and logout.',
-        gridSize: '2x2',
+        gridSize: '4x4',
         thumbnail: 'system-utils/power.svg',
         fallbackIconName: 'system-shutdown-symbolic',
     },

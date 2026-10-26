@@ -24,6 +24,15 @@ import { DEFAULT_WORLD_CLOCK_CITIES, MIN_SLIDESHOW_INTERVAL_SEC, MAX_SLIDESHOW_I
 
 export { DEFAULT_WORLD_CLOCK_CITIES, MIN_SLIDESHOW_INTERVAL_SEC, MAX_SLIDESHOW_INTERVAL_SEC, STEP_SLIDESHOW_INTERVAL_SEC, DEFAULT_SLIDESHOW_INTERVAL_SEC } from './widgetConstants.js';
 
+
+function getGlobalDefaultLocation(settings) {
+    return {
+        name: settings.get_string('weather-city') || 'Nyíregyháza',
+        latitude: settings.get_double('weather-lat') || 47.955,
+        longitude: settings.get_double('weather-lon') || 21.716,
+    };
+}
+
 function createModernWidgetAddDialog(parentWindow, title, onConfirm) {
     const window = new Adw.Window({
         title,
@@ -392,8 +401,10 @@ export function openAddSunScheduleDialog(parentWindow, settings) {
         return false;
     });
 
+    const defaultLoc = getGlobalDefaultLocation(settings);
+
     const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 12 });
-    locationPicker = buildOpenMeteoCitySearchRow(box, 'City Location:', null, 0);
+    locationPicker = buildOpenMeteoCitySearchRow(box, 'City Location:', defaultLoc, 0);
 
     group.add(box);
     window.present();
@@ -447,11 +458,7 @@ export function openAddMoonDialog(parentWindow, settings) {
         return false;
     });
 
-    const defaultLoc = {
-        name: settings.get_string('weather-city') || 'Budapest',
-        latitude: 47.498,
-        longitude: 19.039,
-    };
+    const defaultLoc = getGlobalDefaultLocation(settings);
 
     const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 12 });
     locationPicker = buildOpenMeteoCitySearchRow(box, 'City Location:', defaultLoc, 0);

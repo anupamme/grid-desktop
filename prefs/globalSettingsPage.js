@@ -121,6 +121,13 @@ export function buildGlobalSettingsPage(settings) {
         performCitySearch(query, resultsList, (location) => {
             const locationName = location.name;
             settings.set_string('weather-city', locationName);
+
+            // Mentsük el a sémába a koordinátákat is:
+            if (location.latitude !== undefined && location.longitude !== undefined) {
+                settings.set_double('weather-lat', location.latitude);
+                settings.set_double('weather-lon', location.longitude);
+            }
+
             citySearchRow.set_title(`Default City (Current: ${locationName})`);
 
             suppressSearch = true;
@@ -130,8 +137,12 @@ export function buildGlobalSettingsPage(settings) {
             const widgets = getWidgets(settings);
             let modified = false;
             for (const widget of widgets) {
-                if (widget.type === 'weather') {
+                if (widget.type === 'weather' || widget.type === 'weather_bars' || widget.type === 'weather_cards') {
                     widget.location = locationName;
+                    if (location.latitude !== undefined && location.longitude !== undefined) {
+                        widget.lat = location.latitude;
+                        widget.lon = location.longitude;
+                    }
                     modified = true;
                 }
             }
