@@ -102,6 +102,7 @@ export function registerWidgetCleanup(widgetNode, cleanupFn) {
     }
 }
 
+
 export function resolveWidgetGlassHighlight(config) {
     const bgColor = resolveWidgetBackgroundColor(config);
     const isDark = isDarkBackgroundColor(bgColor);
@@ -113,7 +114,6 @@ export function resolveWidgetGlassHighlight(config) {
         return 'border: 1px solid rgba(0, 0, 0, 0.08); border-bottom: 1px solid rgba(0, 0, 0, 0.14);';
     }
 }
-
 
 
 export function createWidgetContainer(config, width, height, xPosition, yPosition) {
