@@ -222,6 +222,8 @@ export function buildStorePage(window, settings, extensionPath) {
                 def(STORE_WIDGETS.systemMonitor, () => addCpuRamWidget(settings, 4, 2)),
                 def(STORE_WIDGETS.systemInfo, () => addSystemInfoWidget(settings, 'cpu', 2, 2)),
                 def(STORE_WIDGETS.resourceWheel, () => addResourceWheelWidget(settings, 'cpu', 5, 4)),
+                def(STORE_WIDGETS.uptime, () => addUptimeWidget(settings)),
+                def(STORE_WIDGETS.updates, () => addUpdatesWidget(settings)),
                 def(STORE_WIDGETS.storageBar, () => addStorageBarWidget(settings)),
                 def(STORE_WIDGETS.batteryStatus, () => addBatteryStatusWidget(settings, 4, 3)),
 
@@ -236,10 +238,10 @@ export function buildStorePage(window, settings, extensionPath) {
                 def(STORE_WIDGETS.controlsSliders, () => addControlsSlidersWidget(settings)),
                 def(STORE_WIDGETS.audioOutput, () => addAudioOutputWidget(settings)),
                 def(STORE_WIDGETS.bluetoothDevices, () => addBluetoothDevicesWidget(settings)),
-
+                
+                // Fájlgyorselérés
                 def(STORE_WIDGETS.downloads, () => addDownloadsWidget(settings)),
-                def(STORE_WIDGETS.uptime, () => addUptimeWidget(settings)),
-                def(STORE_WIDGETS.updates, () => addUpdatesWidget(settings)),
+                
             ]
         },
         {
