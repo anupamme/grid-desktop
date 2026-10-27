@@ -326,3 +326,7 @@ export function addMoonWidget(settings, city, latitude, longitude, width = 6, he
 export function addBinaryWidget(settings, width = 4, height = 2) {
     addWidget(settings, { id: nextWidgetId(settings, 'binary'), type: 'binary' }, width, height);
 }
+
+export function addDownloadsWidget(settings, width = 4, height = 5) {
+    addWidget(settings, { id: nextWidgetId(settings, 'downloads'), type: 'downloads' }, width, height);
+}

@@ -183,6 +183,13 @@ export const STORE_WIDGETS = Object.freeze({
         thumbnail: 'system/bluetooth.svg',
         fallbackIconName: 'bluetooth-active-symbolic',
     },
+    downloads: {
+        title: 'Folder Preview',
+        description: 'Quick access grid for downloaded files or any watched directory with previews.',
+        gridSize: '4x5',
+        thumbnail: 'system/downloads.svg',
+        fallbackIconName: 'folder-download-symbolic',
+    },
 
     // ── Focus & Productivity ───────────────────────────────────────────
     pomodoroTimer: {
@@ -434,7 +441,8 @@ export const STORE_CATEGORIES = Object.freeze({
         'watermind',
         'bluetoothDevices',
         'mailGoa',
-        'lavaLamp'
+        'lavaLamp',
+        'downloads'
     ],
 });
 
@@ -571,6 +579,8 @@ function getStoreWidgetKey(widget) {
             return 'moonWidget';
         case 'binary':
             return 'binary';
+        case 'downloads':
+            return 'downloads';
         default:
             return null;
     }

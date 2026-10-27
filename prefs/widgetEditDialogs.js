@@ -24,7 +24,8 @@ import {
     buildStorageBarSettings,
     buildWatermindSettings,
     buildLavaLampSettings,
-    buildMoonSettings
+    buildMoonSettings,
+    buildDownloadsSettings,
 } from './widgetSettings.js';
 
 export function buildWidgetEditPanel(parentWindow, widget, settings, onSavedCallback) {
@@ -117,6 +118,10 @@ export function buildWidgetEditPanel(parentWindow, widget, settings, onSavedCall
             break;
         case 'moon':
             buildMoonSettings(group, widget, saveHandlers);
+            break;
+        case 'system-downloads':
+        case 'downloads':
+            buildDownloadsSettings(group, widget, saveHandlers, parentWindow);
             break;
     }
 

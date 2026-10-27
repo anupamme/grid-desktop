@@ -34,7 +34,8 @@ import {
     createResourceWheelNode,
     createStorageBarNode,
     createSystemDashboardNode,
-    createSystemInfoNode
+    createSystemInfoNode,
+    createDownloadsNode
 } from '../widgets/system/index.js';
 
 // Time & Calendar
@@ -140,6 +141,7 @@ const WIDGET_CREATORS = {
     'lavaLamp': (data, w, h, x, y) => createLavaLampNode(data, w, h, x, y),
     'moon': (data, w, h, x, y) => createMoonNode(data, w, h, x, y),
     'binary': (data, w, h, x, y) => createBinaryNode(data, w, h, x, y),
+    'downloads': (data, w, h, x, y) => createDownloadsNode(data, w, h, x, y),
 };
 
 export function createWidgetNode(data, width, height, x, y) {

@@ -26,6 +26,7 @@ import {
     addStorageBarWidget,
     addSystemDashboardWidget,
     addSystemInfoWidget,
+    addDownloadsWidget,
 
     // Focus & Productivity
     addClipboardWidget,
@@ -233,6 +234,8 @@ export function buildStorePage(window, settings, extensionPath) {
                 def(STORE_WIDGETS.controlsSliders, () => addControlsSlidersWidget(settings)),
                 def(STORE_WIDGETS.audioOutput, () => addAudioOutputWidget(settings)),
                 def(STORE_WIDGETS.bluetoothDevices, () => addBluetoothDevicesWidget(settings)),
+
+                def(STORE_WIDGETS.downloads, () => addDownloadsWidget(settings)),
             ]
         },
         {

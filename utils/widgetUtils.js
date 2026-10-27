@@ -78,6 +78,7 @@ export const MIN_WIDGET_SIZES = Object.freeze({
     'moon': { minCols: 6, minRows: 3 },
     'binary': { minCols: 4, minRows: 2 },
     'sun-schedule': { minCols: 4, minRows: 4 },
+    'downloads': { minCols: 5, minRows: 4 },
 });
 
 /**
@@ -555,6 +556,7 @@ const SIZE_PRESETS = {
     'lavaLamp': [[4, 8], [5, 10], [6, 12]],
     'moon': [[6, 3], [8, 4], [10, 5]],
     'binary': [[4, 2], [6, 3], [8, 4]],
+    'downloads': [[5, 4], [6, 5], [8, 7]],
 };
 
 export const FREE_FLOW_SIZE_TYPES = ['image', 'slideshow'];

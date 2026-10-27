@@ -1037,3 +1037,54 @@ export function buildMoonSettings(container, widget, saveHandlers) {
         }
     });
 }
+
+export function buildDownloadsSettings(container, widget, saveHandlers, parentWindow) {
+    const defaultDownloads = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD) ||
+                             GLib.build_filenamev([GLib.get_home_dir(), 'Downloads']);
+
+    const pathRow = new Adw.EntryRow({
+        title: 'Watched Folder',
+        text: widget.folderPath || defaultDownloads,
+    });
+
+    const browseBtn = new Gtk.Button({
+        icon_name: 'folder-open-symbolic',
+        valign: Gtk.Align.CENTER,
+        css_classes: ['flat'],
+    });
+
+    browseBtn.connect('clicked', () => {
+        const dialog = new Gtk.FileDialog({
+            title: 'Select Folder',
+        });
+
+        const currentText = pathRow.get_text().trim();
+        if (currentText && GLib.file_test(currentText, GLib.FileTest.IS_DIR)) {
+            try {
+                dialog.set_initial_folder(Gio.File.new_for_path(currentText));
+            } catch (e) {}
+        }
+
+        dialog.select_folder(parentWindow || null, null, (dlg, result) => {
+            try {
+                const folder = dlg.select_folder_finish(result);
+                if (folder) {
+                    pathRow.set_text(folder.get_path());
+                }
+            } catch (e) {
+                // Ha a felhasználó a 'Mégse' gombra kattintott, nem dobunk hibát és nem zárjuk be a prefs-t:
+                if (!e.matches(Gtk.DialogError, Gtk.DialogError.DISMISSED)) {
+                    console.error('Downloads folder dialog error:', e);
+                }
+            }
+        });
+    });
+
+    pathRow.add_suffix(browseBtn);
+    container.add(pathRow);
+
+    saveHandlers.push((target) => {
+        const selected = pathRow.get_text().trim();
+        target.folderPath = selected || defaultDownloads;
+    });
+}
