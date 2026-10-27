@@ -197,6 +197,13 @@ export const STORE_WIDGETS = Object.freeze({
         thumbnail: 'system/uptime.svg',
         fallbackIconName: 'preferences-system-time-symbolic',
     },
+    updates: {
+        title: 'Updates',
+        description: 'Displays pending package updates for APT, DNF, Pacman, or Zypper.',
+        gridSize: '2x2',
+        thumbnail: 'system/updates.svg',
+        fallbackIconName: 'software-update-available-symbolic',
+    },
 
     // ── Focus & Productivity ───────────────────────────────────────────
     pomodoroTimer: {
@@ -450,7 +457,9 @@ export const STORE_CATEGORIES = Object.freeze({
         'mailGoa',
         'lavaLamp',
         'downloads',
-        'uptime'
+        'uptime',
+        'updates'
+
     ],
 });
 
@@ -591,6 +600,8 @@ function getStoreWidgetKey(widget) {
             return 'downloads';
         case 'uptime':
             return 'uptime';
+        case 'updates':
+            return 'updates';
         default:
             return null;
     }

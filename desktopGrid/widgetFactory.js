@@ -37,6 +37,7 @@ import {
     createSystemInfoNode,
     createDownloadsNode,
     createUptimeNode,
+    createUpdatesNode
 } from '../widgets/system/index.js';
 
 // Time & Calendar
@@ -144,6 +145,7 @@ const WIDGET_CREATORS = {
     'binary': (data, w, h, x, y) => createBinaryNode(data, w, h, x, y),
     'downloads': (data, w, h, x, y) => createDownloadsNode(data, w, h, x, y),
     'uptime': (data, w, h, x, y) => createUptimeNode(data, w, h, x, y),
+    'updates': (data, w, h, x, y) => createUpdatesNode(data, w, h, x, y),
 };
 
 export function createWidgetNode(data, width, height, x, y) {

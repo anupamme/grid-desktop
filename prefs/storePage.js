@@ -28,6 +28,7 @@ import {
     addSystemInfoWidget,
     addDownloadsWidget,
     addUptimeWidget,
+    addUpdatesWidget,
 
     // Focus & Productivity
     addClipboardWidget,
@@ -238,6 +239,7 @@ export function buildStorePage(window, settings, extensionPath) {
 
                 def(STORE_WIDGETS.downloads, () => addDownloadsWidget(settings)),
                 def(STORE_WIDGETS.uptime, () => addUptimeWidget(settings)),
+                def(STORE_WIDGETS.updates, () => addUpdatesWidget(settings)),
             ]
         },
         {

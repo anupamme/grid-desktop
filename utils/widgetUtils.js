@@ -80,6 +80,7 @@ export const MIN_WIDGET_SIZES = Object.freeze({
     'sun-schedule': { minCols: 4, minRows: 4 },
     'downloads': { minCols: 5, minRows: 4 },
     'uptime': { minCols: 4, minRows: 2 },
+    'updates': { minCols: 2, minRows: 2 },
 });
 
 /**
@@ -559,6 +560,7 @@ const SIZE_PRESETS = {
     'binary': [[4, 2], [6, 3], [8, 4]],
     'downloads': [[5, 4], [6, 5], [8, 7]],
     'uptime': [[4, 2], [6, 3], [8, 4]],
+    'updates': [[2, 2], [3, 3], [4, 4]],
 };
 
 export const FREE_FLOW_SIZE_TYPES = ['image', 'slideshow'];

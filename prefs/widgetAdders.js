@@ -334,3 +334,7 @@ export function addDownloadsWidget(settings, width = 4, height = 5) {
 export function addUptimeWidget(settings, width = 4, height = 2) {
     addWidget(settings, { id: nextWidgetId(settings, 'uptime'), type: 'uptime' }, width, height);
 }
+
+export function addUpdatesWidget(settings, width = 2, height = 2) {
+    addWidget(settings, { id: nextWidgetId(settings, 'updates'), type: 'updates' }, width, height);
+}
