@@ -621,4 +621,6 @@ export const DesktopGrid = GObject.registerClass(
         _toggleGridLines() {
             this._syncGridLines();
         }
+
+        
     });

@@ -1,6 +1,7 @@
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as BoxPointer from 'resource:///org/gnome/shell/ui/boxpointer.js';
@@ -368,6 +369,12 @@ export function openWidgetContextMenu(grid, event, node, widgetData) {
 export function openContextMenu(grid, event) {
     const menu = createPopupMenuAt(grid, event);
 
+    const pasteItem = new PopupMenu.PopupMenuItem('Paste to Desktop');
+    pasteItem.connect('activate', () => pasteClipboardToDesktop());
+    menu.addMenuItem(pasteItem);
+
+    menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
     const bgItem = new PopupMenu.PopupMenuItem('Change Background...');
     bgItem.connect('activate', () => launchSettingsPanel('background'));
     menu.addMenuItem(bgItem);
@@ -395,4 +402,251 @@ export function openContextMenu(grid, event) {
 
     Main.uiGroup.add_child(menu.actor);
     menu.open(BoxPointer.PopupAnimation.NONE);
+}
+/** vágólap kezelések a mentésekhez ** */
+
+/** hol a desktop **/
+function getDesktopPath() {
+    return GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP) ||
+           GLib.build_filenamev([GLib.get_home_dir(), 'Desktop']);
+}
+
+
+/** Név tisztítása és egyedi elérési út generálása az asztalon */
+function getUniqueDesktopPath(desiredName, ext) {
+    const desktop = getDesktopPath();
+    // Nem engedélyezett karakterek eltávolítása
+    let safeName = desiredName.replace(/[/\\?%*:|"<>]/g, '_').trim();
+    if (!safeName) safeName = `picture_${GLib.DateTime.new_now_local().format('%Y%m%d_%H%M%S')}`;
+
+    let filename = `${safeName}.${ext}`;
+    let targetFile = Gio.File.new_for_path(GLib.build_filenamev([desktop, filename]));
+    let counter = 1;
+
+    while (targetFile.query_exists(null)) {
+        filename = `${safeName} (${counter}).${ext}`;
+        targetFile = Gio.File.new_for_path(GLib.build_filenamev([desktop, filename]));
+        counter++;
+    }
+
+    return targetFile;
+}
+
+/** Eredeti fájlnév kinyerése a vágólapon lévő HTML kódból */
+function extractImageBasenameFromHtml(htmlText) {
+    try {
+        // 1. Kép URL keresése az <img ... src="...">-ből
+        const srcMatch = htmlText.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (srcMatch && srcMatch[1]) {
+            let url = srcMatch[1].split('?')[0].split('#')[0]; // Query string és hash levágása
+            let base = GLib.path_get_basename(decodeURIComponent(url));
+            if (base && base.includes('.')) {
+                return base.substring(0, base.lastIndexOf('.')); // Kiterjesztés nélküli tiszta név
+            }
+        }
+
+        // 2. Tartalék: ha az alt attribútumban van leírás (<img ... alt="...">)
+        const altMatch = htmlText.match(/<img[^>]+alt=["']([^"']+)["']/i);
+        if (altMatch && altMatch[1] && altMatch[1].trim()) {
+            return altMatch[1].trim();
+        }
+    } catch (e) {
+        logError('Grid-desktop: Nem sikerült kinyerni a nevet a HTML-ből:', e);
+    }
+    return null;
+}
+
+/** Vágólap tartalmának mentése az asztalra */
+function pasteClipboardToDesktop() {
+    try {
+        const display = global.display;
+        const selection = display.get_selection();
+
+        const mimetypes = selection.get_mimetypes(Meta.SelectionType.SELECTION_CLIPBOARD) || [];
+        const imageMime = mimetypes.find(m => m.startsWith('image/'))
+
+        if (imageMime) {
+            // Megnézzük, van-e HTML kísérő adat a név kinyeréséhez
+            if (mimetypes.includes('text/html')) {
+                _extractHtmlAndSaveImage(selection, imageMime);
+            } else {
+                _saveImageFromMutterSelection(selection, imageMime, null);
+            }
+            return;
+        }
+    } catch (err) {
+        logError('Grid-desktop: Hiba a MIME típusok lekérdezésekor:', err);
+    }
+
+    _handleTextClipboard();
+}
+
+/** HTML kiolvasása és átadása a képmentőnek */
+function _extractHtmlAndSaveImage(selection, imageMime) {
+    const stream = Gio.MemoryOutputStream.new_resizable();
+    selection.transfer_async(
+        Meta.SelectionType.SELECTION_CLIPBOARD,
+        'text/html',
+        -1,
+        stream,
+        null,
+        (sel, res) => {
+            let extractedName = null;
+            try {
+                sel.transfer_finish(res);
+                stream.close(null);
+                const bytes = stream.steal_as_bytes();
+                const htmlText = new TextDecoder('utf-8').decode(bytes.get_data());
+                extractedName = extractImageBasenameFromHtml(htmlText);
+            } catch (e) {
+                // Nem sikerült kiolvasni a HTML-t, marad a fallback
+            }
+            _saveImageFromMutterSelection(selection, imageMime, extractedName);
+        }
+    );
+}
+
+/** Nyers képadat mentése a Mutter belső adatfolyamából */
+function _saveImageFromMutterSelection(selection, mimeType, baseName = null) {
+    let ext = mimeType.split('/')[1] || 'png';
+    if (ext === 'jpeg') ext = 'jpg';
+    ext = ext.split(';')[0];
+
+    // Ha találtunk nevet, azt használjuk, egyébként jöhet a dátumos név
+    const finalBaseName = baseName || `picture_${GLib.DateTime.new_now_local().format('%Y%m%d_%H%M%S')}`;
+    const targetFile = getUniqueDesktopPath(finalBaseName, ext);
+
+    targetFile.replace_async(null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, GLib.PRIORITY_DEFAULT, null, (f, resOpen) => {
+        try {
+            const outputStream = f.replace_finish(resOpen);
+
+            selection.transfer_async(
+                Meta.SelectionType.SELECTION_CLIPBOARD,
+                mimeType,
+                -1,
+                outputStream,
+                null,
+                (sel, resTransfer) => {
+                    try {
+                        sel.transfer_finish(resTransfer);
+                        outputStream.close(null);
+                    } catch (e) {
+                        logError('Grid-desktop: Hiba a kép adatfolyam másolásakor:', e);
+                    }
+                }
+            );
+        } catch (err) {
+            logError('Grid-desktop: Nem sikerült megnyitni a célfájlt a képhez:', err);
+        }
+    });
+}
+
+/** Szöveg, Kép URL vagy fájl URI feldolgozása */
+function _handleTextClipboard() {
+    const clipboard = St.Clipboard.get_default();
+
+    clipboard.get_text(St.ClipboardType.CLIPBOARD, (_clip, text) => {
+        if (!text || !text.trim())
+            return;
+
+        const trimmed = text.trim();
+        const lines = trimmed.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+        const firstLine = lines[0];
+
+        // Webes kép URL (pl. "Kép címének másolása")
+        if (firstLine.startsWith('http://') || firstLine.startsWith('https://')) {
+            const isImage = /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(firstLine);
+            if (isImage) {
+                downloadImageToDesktop(firstLine);
+                return;
+            }
+        }
+
+        // Helyi fájl URI (file://...)
+        if (firstLine.startsWith('file://')) {
+            lines.forEach(uri => {
+                if (uri.startsWith('file://'))
+                    copyLocalFileToDesktop(uri);
+            });
+            return;
+        }
+
+        // Sima szöveg
+        saveTextToDesktop(trimmed);
+    });
+}
+
+function saveTextToDesktop(text) {
+    const desktop = getDesktopPath();
+    const dateStr = GLib.DateTime.new_now_local().format('%Y%m%d_%H%M%S');
+    const targetPath = GLib.build_filenamev([desktop, `text_${dateStr}.txt`]);
+
+    try {
+        const file = Gio.File.new_for_path(targetPath);
+        file.replace_contents(
+            new TextEncoder().encode(text),
+            null,
+            false,
+            Gio.FileCreateFlags.REPLACE_DESTINATION,
+            null
+        );
+    } catch (e) {
+        logError('Grid-desktop: Hiba a szöveg mentésekor:', e);
+    }
+}
+
+function downloadImageToDesktop(url) {
+    const desktop = getDesktopPath();
+    const uriFile = Gio.File.new_for_uri(url);
+
+    let basename = uriFile.get_basename();
+    if (!basename || !basename.includes('.')) {
+        basename = `kep_${GLib.DateTime.new_now_local().format('%Y%m%d_%H%M%S')}.png`;
+    } else {
+        basename = basename.split('?')[0];
+    }
+
+    const targetFile = Gio.File.new_for_path(GLib.build_filenamev([desktop, basename]));
+
+    uriFile.copy_async(
+        targetFile,
+        Gio.FileCopyFlags.OVERWRITE,
+        GLib.PRIORITY_DEFAULT,
+        null,
+        null,
+        (src, res) => {
+            try {
+                src.copy_finish(res);
+            } catch (e) {
+                logError('Grid-desktop: Hiba a kép letöltésekor:', e);
+            }
+        }
+    );
+}
+
+function copyLocalFileToDesktop(fileUri) {
+    try {
+        const srcFile = Gio.File.new_for_uri(fileUri);
+        const desktop = getDesktopPath();
+        const targetFile = Gio.File.new_for_path(
+            GLib.build_filenamev([desktop, srcFile.get_basename()])
+        );
+
+        srcFile.copy_async(
+            targetFile,
+            Gio.FileCopyFlags.OVERWRITE,
+            GLib.PRIORITY_DEFAULT,
+            null,
+            null,
+            (src, res) => {
+                try {
+                    src.copy_finish(res);
+                } catch (e) {
+                    logError('Grid-desktop: Hiba a fájl másolásakor:', e);
+                }
+            }
+        );
+    } catch (e) {
+        logError('Grid-desktop: Hiba a helyi fájl másolásakor:', e);
+    }
 }
