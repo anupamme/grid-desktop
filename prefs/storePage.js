@@ -27,6 +27,7 @@ import {
     addSystemDashboardWidget,
     addSystemInfoWidget,
     addDownloadsWidget,
+    addUptimeWidget,
 
     // Focus & Productivity
     addClipboardWidget,
@@ -236,6 +237,7 @@ export function buildStorePage(window, settings, extensionPath) {
                 def(STORE_WIDGETS.bluetoothDevices, () => addBluetoothDevicesWidget(settings)),
 
                 def(STORE_WIDGETS.downloads, () => addDownloadsWidget(settings)),
+                def(STORE_WIDGETS.uptime, () => addUptimeWidget(settings)),
             ]
         },
         {

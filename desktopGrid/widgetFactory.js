@@ -35,7 +35,8 @@ import {
     createStorageBarNode,
     createSystemDashboardNode,
     createSystemInfoNode,
-    createDownloadsNode
+    createDownloadsNode,
+    createUptimeNode,
 } from '../widgets/system/index.js';
 
 // Time & Calendar
@@ -142,6 +143,7 @@ const WIDGET_CREATORS = {
     'moon': (data, w, h, x, y) => createMoonNode(data, w, h, x, y),
     'binary': (data, w, h, x, y) => createBinaryNode(data, w, h, x, y),
     'downloads': (data, w, h, x, y) => createDownloadsNode(data, w, h, x, y),
+    'uptime': (data, w, h, x, y) => createUptimeNode(data, w, h, x, y),
 };
 
 export function createWidgetNode(data, width, height, x, y) {

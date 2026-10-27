@@ -13,3 +13,4 @@ export { createPowerTogglesNode } from './powerToggles.js';
 export { createBluetoothDevicesNode } from './bluetoothDevicesWidget.js';
 export { createPingNode } from './pingWidget.js';
 export { createDownloadsNode } from './downloads.js';
+export { createUptimeNode } from './uptime.js';

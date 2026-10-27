@@ -330,3 +330,7 @@ export function addBinaryWidget(settings, width = 4, height = 2) {
 export function addDownloadsWidget(settings, width = 4, height = 5) {
     addWidget(settings, { id: nextWidgetId(settings, 'downloads'), type: 'downloads' }, width, height);
 }
+
+export function addUptimeWidget(settings, width = 4, height = 2) {
+    addWidget(settings, { id: nextWidgetId(settings, 'uptime'), type: 'uptime' }, width, height);
+}

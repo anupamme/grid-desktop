@@ -190,6 +190,13 @@ export const STORE_WIDGETS = Object.freeze({
         thumbnail: 'system/downloads.svg',
         fallbackIconName: 'folder-download-symbolic',
     },
+    uptime: {
+        title: 'Uptime',
+        description: 'Displays system running time since the last boot.',
+        gridSize: '4x2',
+        thumbnail: 'system/uptime.svg',
+        fallbackIconName: 'preferences-system-time-symbolic',
+    },
 
     // ── Focus & Productivity ───────────────────────────────────────────
     pomodoroTimer: {
@@ -442,7 +449,8 @@ export const STORE_CATEGORIES = Object.freeze({
         'bluetoothDevices',
         'mailGoa',
         'lavaLamp',
-        'downloads'
+        'downloads',
+        'uptime'
     ],
 });
 
@@ -581,6 +589,8 @@ function getStoreWidgetKey(widget) {
             return 'binary';
         case 'downloads':
             return 'downloads';
+        case 'uptime':
+            return 'uptime';
         default:
             return null;
     }
