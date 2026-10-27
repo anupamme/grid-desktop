@@ -2,6 +2,47 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import { getWidgets, saveWidgets, findEmptySpot, nextWidgetId, calculateGridDimensions } from './widgetUtils.js';
 
+/** Ellenőrzi, hogy egy URI jelenleg TÉNYLEG létezik és fel van-e csatolva */
+function isMountActuallyActive(uri) {
+    if (!uri) return false;
+    try {
+        const file = Gio.File.new_for_uri(uri);
+        // 1. Megpróbáljuk lekérni a befoglaló mountot
+        const mount = file.find_enclosing_mount(null);
+        if (!mount) return false;
+
+        // 2. Külön a Google Drive és hálózati URI-k esetén:
+        // Ha nem lehet query_info-t kérni rá, a GVfs kapcsolat halott!
+        const info = file.query_info(
+            'standard::name',
+            Gio.FileQueryInfoFlags.NONE,
+            null
+        );
+        return info !== null;
+    } catch (e) {
+        // Ha G_IO_ERROR_NOT_MOUNTED vagy hálózati hiba -> NINCS felcsatolva!
+        return false;
+    }
+}
+/** Megkeresi a Nautilus/freedesktop által generált bélyegképet az URI hash-e alapján */
+function getThumbnailForUri(uri) {
+    try {
+        const checksum = GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, uri, -1);
+        const home = GLib.get_home_dir();
+        const candidatePaths = [
+            GLib.build_filenamev([home, '.cache', 'thumbnails', 'large', `${checksum}.png`]),
+            GLib.build_filenamev([home, '.cache', 'thumbnails', 'normal', `${checksum}.png`]),
+        ];
+
+        for (const p of candidatePaths) {
+            if (GLib.file_test(p, GLib.FileTest.EXISTS)) {
+                return p;
+            }
+        }
+    } catch (e) {}
+    return null;
+}
+
 let _monitor = null;
 let _monitorTimeoutId = null;
 let _trashMonitor = null;
@@ -97,13 +138,22 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
             mounts.forEach(mount => {
                 const root = mount.get_root();
                 if (root && root.get_path() !== '/') {
-                    currentFiles.push({
-                        name: mount.get_name(),
-                        uri: root.get_uri(),
-                        icon: mount.get_icon() ? mount.get_icon().to_string() : 'drive-harddisk',
-                        isSpecial: true,
-                        isMount: true,
-                    });
+                    const uri = root.get_uri();
+
+                    // Google drive és hálózati meghajtóknál ellenőrizzük, hogy él-e még a kapcsolat
+                    const isNetwork = uri.startsWith('google-drive:') || 
+                                      uri.startsWith('smb:') || 
+                                      uri.startsWith('sftp:');
+
+                    if (!isNetwork || isMountActuallyActive(uri)) {
+                        currentFiles.push({
+                            name: mount.get_name(),
+                            uri: uri,
+                            icon: mount.get_icon() ? mount.get_icon().to_string() : 'drive-harddisk',
+                            isSpecial: true,
+                            isMount: true,
+                        });
+                    }
                 }
             });
         } catch (e) {}
@@ -124,6 +174,21 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
             let displayName = info.get_display_name() || fileName;
             let iconString = info.get_icon() ? info.get_icon().to_string() : 'text-x-generic';
             let isDesktopEntry = false;
+
+            const filePath = childFile.get_path();
+            const fileUri = childFile.get_uri();
+
+            // 1. KÉP ELŐNÉZET: Ha kép, közvetlenül a fájl elérési útját használjuk ikonként
+            const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(fileName);
+            if (isImage && filePath) {
+                iconString = filePath;
+            } else {
+                // 2. NAUTILUS THUMBNAIL CACHE: egyéb fájloknál (pl. PDF, videó)
+                const thumb = getThumbnailForUri(fileUri);
+                if (thumb) {
+                    iconString = thumb;
+                }
+            }
 
             if (fileName.endsWith('.desktop')) {
                 try {
@@ -168,11 +233,19 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
     widgets = widgets.filter(w => {
         if (!w.isDesktopIcon) return true;
         
+        // Ha csatolt meghajtó (Google Drive, pendrive, stb.):
         if (w.isMount) {
-            // Csak akkor maradhat, ha még mindig ott van a jelenlegi aktív mountok között!
-            return currentFiles.some(f => f.isMount && (f.uri === w.uri || f.name === w.name));
+            // Csak akkor maradhat, ha:
+            // a) Benne van az aktív mounts listában ÉS
+            // b) A valóságban is él a kapcsolata (nem szakadt le hordozás/alvás közben)
+            const existsInCurrent = currentFiles.some(f => f.isMount && f.uri === w.uri);
+            if (!existsInCurrent || !isMountActuallyActive(w.uri)) {
+                return false; // KUKÁZZUK A BERAGADT IKONT!
+            }
+            return true;
         }
         
+        // Normál fájlok szűrése:
         return currentFiles.some(f => {
             if (f.uri === w.uri) return true;
             try {
@@ -470,12 +543,19 @@ export function monitorDesktop(settings, callback) {
         _sleepSignalId = _loginManager.connect('g-signal', (proxy, sender, [signalName, params]) => {
             if (signalName === 'PrepareForSleep') {
                 const isSleeping = params.get_child_value(0).get_boolean();
-                // Ha isSleeping === false, akkor most ébredtünk fel!
                 if (!isSleeping) {
-                    // Várunk 1 másodpercet, hogy a GVfs és a DBus stabilizálódjon
+                    // Felébredtünk!
+                    // 1. Azonnali ellenőrzés (a helyi pendrive-okhoz):
                     GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
-                        const modified = syncDesktopIcons(settings, false);
-                        if (modified && callback) callback();
+                        const mod = syncDesktopIcons(settings, false);
+                        if (mod && callback) callback();
+                        return GLib.SOURCE_REMOVE;
+                    });
+
+                    // 2. Késleltetett ellenőrzés 4 másodperc múlva (amikor a Wi-Fi és a Google Drive újra feláll vagy végleg leszakad):
+                    GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 4, () => {
+                        const mod = syncDesktopIcons(settings, false);
+                        if (mod && callback) callback();
                         return GLib.SOURCE_REMOVE;
                     });
                 }
