@@ -75,7 +75,7 @@ export const MIN_WIDGET_SIZES = Object.freeze({
     'binary': { minCols: 4, minRows: 2 },
     'sun-schedule': { minCols: 4, minRows: 4 },
     'downloads': { minCols: 5, minRows: 4 },
-    'uptime': { minCols: 4, minRows: 2 },
+    'uptime': { minCols: 3, minRows: 2 },
     'updates': { minCols: 2, minRows: 2 },
     'hardwerinfo': { minCols: 4, minRows: 4 },
 });
@@ -551,7 +551,7 @@ const SIZE_PRESETS = {
     'moon': [[6, 3], [8, 4], [10, 5]],
     'binary': [[4, 2], [6, 3], [8, 4]],
     'downloads': [[5, 4], [6, 5], [8, 7]],
-    'uptime': [[4, 2], [6, 3], [8, 4]],
+    'uptime': [[3, 2], [4, 3], [6, 4]],
     'updates': [[2, 2], [3, 3], [4, 4]],
     'hardwerinfo': [[4, 4], [5, 5], [6, 6]],
 };
