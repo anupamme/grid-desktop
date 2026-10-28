@@ -343,7 +343,7 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
 
     function applyScale(newScale) {
         scale = newScale;
-        const pad = Math.round(8 * scale);
+        const pad = Math.max(10, Math.round(14 * scale));
         const fontSize = Math.max(10, Math.round(11.5 * scale));
         const iconSize = Math.max(13, Math.round(15 * scale));
         const rowGap = Math.max(3, Math.round(5 * scale));
@@ -354,7 +354,7 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
         headerIcon.style = `color: ${textColor}; margin-right: 6px;`;
         headerLabel.style = `${fontCss}color: ${textColor}; font-size: ${Math.round(12 * scale)}px; font-weight: bold;`;
 
-        contentBox.style = `spacing: ${rowGap}px;`;
+        contentBox.style = `spacing: ${rowGap}px; padding: 0px 2px;`;
         devicesContainer.style = `spacing: ${rowGap}px;`;
 
         staticRows.forEach(r => {
