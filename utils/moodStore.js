@@ -5,10 +5,6 @@ import { getGridgetsDataDir, loadJsonFromFileAsync, saveJsonToFile, saveJsonToFi
 import { todayDateString, toDateString } from './widgetUtils.js';
 export { todayDateString, toDateString };
 
-const DEBUG = false;
-function logError(...args) {
-    if (DEBUG) console.error(...args);
-}
 
 // Monthly-partitioned mood history: ~/.local/share/gridgets/mood/<year>/<month>.json
 const monthCache = new Map();
@@ -203,13 +199,11 @@ export function listMoodDates(callback) {
                     };
                     readNextBatch();
                 } catch (e) {
-                    logError('Error listing mood dates:', e);
                     callback([]);
                 }
             }
         );
     } catch (e) {
-        logError('Error listing mood dates:', e);
         callback([]);
     }
 }

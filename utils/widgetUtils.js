@@ -23,10 +23,6 @@ export const GRID_MARGIN_PX = 4;
 export const COLUMNS_COUNT = 50;
 export const ROWS_COUNT = 28;
 
-const DEBUG = false;
-const logError = (...args) => { if (DEBUG) console.error(...args); };
-const logWarn = (...args) => { if (DEBUG) console.warn(...args); };
-
 export const MIN_WIDGET_SIZES = Object.freeze({
     'pomodoro': { minCols: 4, minRows: 4 },
     'pomodoro-focus': { minCols: 8, minRows: 4 },
@@ -338,7 +334,6 @@ function ensureDirectory(dirPath, errorContext) {
         }
         ensuredDirectories.add(dirPath);
     } catch (e) {
-        logError(`Error creating ${errorContext} ${dirPath}:`, e);
     }
 }
 
@@ -369,7 +364,6 @@ export function loadJsonFromFileAsync(filePath, callback) {
                 contents = bytes;
         } catch (e) {
             if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND))
-                logError(`Error reading ${filePath}:`, e);
             callback(null);
             return;
         }
@@ -382,7 +376,6 @@ export function loadJsonFromFileAsync(filePath, callback) {
         try {
             callback(JSON.parse(new TextDecoder('utf-8').decode(contents)));
         } catch (parseError) {
-            logError(`Corrupt JSON in ${filePath}; ignoring saved data:`, parseError);
             callback(null, parseError);
         }
     });
@@ -398,8 +391,7 @@ export function saveJsonToFile(filePath, data) {
         try {
             file.replace_contents_finish(res);
         } catch (e) {
-            if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
-                logError(`Error saving JSON to ${filePath}:`, e);
+            if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED));
         }
     });
 }
@@ -417,7 +409,6 @@ export function saveJsonToFileSync(filePath, data) {
         Gio.File.new_for_path(filePath).replace_contents(bytes, null, false, Gio.FileCreateFlags.NONE, null);
         return true;
     } catch (e) {
-        logError(`Error saving JSON to ${filePath}:`, e);
         return false;
     }
 }
@@ -435,7 +426,7 @@ export function deleteCacheFile(subFolder, widgetId) {
             try {
                 f.delete_finish(res);
             } catch (e) {
-                console.debug('Grid Desktop: cache file delete failed (non-critical):', e.message);
+  
             }
         });
     }
@@ -726,7 +717,6 @@ export function getWidgets(settings) {
         const jsonString = settings.get_string('widgets');
         return jsonString ? JSON.parse(jsonString) : [];
     } catch (e) {
-        logError('Failed to parse widgets JSON from settings:', e);
         return [];
     }
 }
@@ -740,7 +730,7 @@ export function saveWidgets(settings, widgets) {
     try {
         settings.set_string('widgets', serializeWidgets(widgets));
     } catch (e) {
-        logError('Failed to save widgets to settings:', e);
+
     }
 }
 

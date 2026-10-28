@@ -1,30 +1,30 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import { getWidgets, saveWidgets, findEmptySpot, nextWidgetId, calculateGridDimensions } from './widgetUtils.js';
+import { getWidgets, saveWidgets, calculateGridDimensions } from './widgetUtils.js';
 
-/** Ellenőrzi, hogy egy URI jelenleg TÉNYLEG létezik és fel van-e csatolva */
 function isMountActuallyActive(uri) {
     if (!uri) return false;
     try {
         const file = Gio.File.new_for_uri(uri);
-        // 1. Megpróbáljuk lekérni a befoglaló mountot
         const mount = file.find_enclosing_mount(null);
         if (!mount) return false;
 
-        // 2. Külön a Google Drive és hálózati URI-k esetén:
-        // Ha nem lehet query_info-t kérni rá, a GVfs kapcsolat halott!
-        const info = file.query_info(
+        const enumerator = file.enumerate_children(
             'standard::name',
             Gio.FileQueryInfoFlags.NONE,
             null
         );
-        return info !== null;
+
+        if (enumerator) {
+            enumerator.close(null);
+            return true;
+        }
+        return false;
     } catch (e) {
-        // Ha G_IO_ERROR_NOT_MOUNTED vagy hálózati hiba -> NINCS felcsatolva!
         return false;
     }
 }
-/** Megkeresi a Nautilus/freedesktop által generált bélyegképet az URI hash-e alapján */
+
 function getThumbnailForUri(uri) {
     try {
         const checksum = GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, uri, -1);
@@ -47,6 +47,8 @@ let _monitor = null;
 let _monitorTimeoutId = null;
 let _trashMonitor = null;
 let _trashSignalId = 0;
+let _volumeMonitor = null;
+let _mountSignals = [];
 let _loginManager = null;
 let _sleepSignalId = 0;
 
@@ -67,7 +69,6 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
         return false;
     }
 
-    // Korábbi duplikált ID-k automatikus kijavítása a meglévő mentett adatokban
     const seenIds = new Set();
     widgets.forEach((w, idx) => {
         if (!w.id || seenIds.has(w.id)) {
@@ -133,19 +134,15 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
 
     if (showMounts) {
         try {
-            const volumeMonitor = Gio.VolumeMonitor.get();
-            const mounts = volumeMonitor.get_mounts();
+            const vm = Gio.VolumeMonitor.get();
+            const mounts = vm.get_mounts();
             mounts.forEach(mount => {
                 const root = mount.get_root();
                 if (root && root.get_path() !== '/') {
                     const uri = root.get_uri();
+                    const isRemoteOrGvfs = !uri.startsWith('file://');
 
-                    // Google drive és hálózati meghajtóknál ellenőrizzük, hogy él-e még a kapcsolat
-                    const isNetwork = uri.startsWith('google-drive:') || 
-                                      uri.startsWith('smb:') || 
-                                      uri.startsWith('sftp:');
-
-                    if (!isNetwork || isMountActuallyActive(uri)) {
+                    if (!isRemoteOrGvfs || isMountActuallyActive(uri)) {
                         currentFiles.push({
                             name: mount.get_name(),
                             uri: uri,
@@ -178,12 +175,10 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
             const filePath = childFile.get_path();
             const fileUri = childFile.get_uri();
 
-            // 1. KÉP ELŐNÉZET: Ha kép, közvetlenül a fájl elérési útját használjuk ikonként
             const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(fileName);
             if (isImage && filePath) {
                 iconString = filePath;
             } else {
-                // 2. NAUTILUS THUMBNAIL CACHE: egyéb fájloknál (pl. PDF, videó)
                 const thumb = getThumbnailForUri(fileUri);
                 if (thumb) {
                     iconString = thumb;
@@ -228,24 +223,29 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
         return false;
     }
 
-    // 1. Töröljük a már nem létező fájlok widgetjeit
     const countBefore = widgets.length;
     widgets = widgets.filter(w => {
         if (!w.isDesktopIcon) return true;
-        
-        // Ha csatolt meghajtó (Google Drive, pendrive, stb.):
-        if (w.isMount) {
-            // Csak akkor maradhat, ha:
-            // a) Benne van az aktív mounts listában ÉS
-            // b) A valóságban is él a kapcsolata (nem szakadt le hordozás/alvás közben)
+
+        const isMountWidget = Boolean(
+            w.isMount ||
+            (w.uri && (
+                w.uri.startsWith('google-drive://') ||
+                w.uri.startsWith('sftp://') ||
+                w.uri.startsWith('smb://') ||
+                w.uri.startsWith('smb-share://') ||
+                w.uri.startsWith('nfs://')
+            ))
+        );
+
+        if (isMountWidget) {
             const existsInCurrent = currentFiles.some(f => f.isMount && f.uri === w.uri);
             if (!existsInCurrent || !isMountActuallyActive(w.uri)) {
-                return false; // KUKÁZZUK A BERAGADT IKONT!
+                return false;
             }
             return true;
         }
-        
-        // Normál fájlok szűrése:
+
         return currentFiles.some(f => {
             if (f.uri === w.uri) return true;
             try {
@@ -255,9 +255,9 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
             }
         });
     });
+
     if (widgets.length !== countBefore) modified = true;
 
-    // Meghatározzuk a legnagyobb meglévő desktop id számot a memóriában
     let maxIdNum = 0;
     const prefix = 'widget-desktop-';
     widgets.forEach(w => {
@@ -267,7 +267,6 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
         }
     });
 
-    // 2. Új elemek hozzáadása vagy meglévők frissítése
     currentFiles.forEach(file => {
         let w = widgets.find(icon => {
             if (!icon.isDesktopIcon) return false;
@@ -381,7 +380,6 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
         }
     });
 
-    // 3. Kényszerített újrarendezés (ha a beállítás megváltozott)
     if (forceOrganize) {
         let desktopIcons = widgets.filter(w => w.isDesktopIcon);
         let otherWidgets = widgets.filter(w => !w.isDesktopIcon);
@@ -452,13 +450,9 @@ export function syncDesktopIcons(settings, forceOrganize = false) {
     return modified;
 }
 
-let _volumeMonitor = null;
-let _mountSignals = [];
-
 export function monitorDesktop(settings, callback) {
     if (_monitor || !settings) return;
 
-    // 1. Asztal mappa figyelése
     const desktopPath = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP) || `${GLib.get_home_dir()}/Desktop`;
     const desktopFile = Gio.File.new_for_path(desktopPath);
     try {
@@ -480,7 +474,6 @@ export function monitorDesktop(settings, callback) {
         });
     } catch (e) {}
 
-    // 2. Kuka állapotváltozás figyelése (ürítés vagy új szemét)
     try {
         const trashFile = Gio.File.new_for_uri('trash:///');
         _trashMonitor = trashFile.monitor_directory(Gio.FileMonitorFlags.WATCH_MOUNTES, null);
@@ -498,7 +491,6 @@ export function monitorDesktop(settings, callback) {
         });
     } catch (e) {}
 
-    // 3. Kötetek és felcsatolt meghajtók figyelése
     try {
         _volumeMonitor = Gio.VolumeMonitor.get();
         const onMountChange = () => {
@@ -544,25 +536,23 @@ export function monitorDesktop(settings, callback) {
             if (signalName === 'PrepareForSleep') {
                 const isSleeping = params.get_child_value(0).get_boolean();
                 if (!isSleeping) {
-                    // Felébredtünk!
-                    // 1. Azonnali ellenőrzés (a helyi pendrive-okhoz):
-                    GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
-                        const mod = syncDesktopIcons(settings, false);
-                        if (mod && callback) callback();
-                        return GLib.SOURCE_REMOVE;
-                    });
-
-                    // 2. Késleltetett ellenőrzés 4 másodperc múlva (amikor a Wi-Fi és a Google Drive újra feláll vagy végleg leszakad):
-                    GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 4, () => {
-                        const mod = syncDesktopIcons(settings, false);
-                        if (mod && callback) callback();
-                        return GLib.SOURCE_REMOVE;
+                    [1000, 3000, 6000].forEach(delay => {
+                        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+                            const mod = syncDesktopIcons(settings, false);
+                            if (mod && callback) callback();
+                            return GLib.SOURCE_REMOVE;
+                        });
                     });
                 }
             }
         });
     } catch (e) {}
 
+    GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        const mod = syncDesktopIcons(settings, false);
+        if (mod && callback) callback();
+        return GLib.SOURCE_REMOVE;
+    });
 }
 
 export function stopMonitor() {

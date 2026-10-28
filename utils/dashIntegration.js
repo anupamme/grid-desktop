@@ -28,9 +28,7 @@ function addAppToDesktop(appInfo) {
         } catch (e) {
             Gio.Subprocess.new(['gio', 'set', destPath, 'metadata::trusted', 'true'], Gio.SubprocessFlags.NONE);
         }
-        console.log('[grid-desktop] Sikeres másolás az asztalra:', fileName);
     } catch (e) {
-        console.error('[grid-desktop] Hiba az asztalra másoláskor:', e);
     }
 }
 
@@ -65,17 +63,14 @@ export function enableDashContextMenu() {
                         addAppToDesktop(appInfo);
                     });
                     this.addMenuItem(item);
-                    console.log('[grid-desktop] Menüpont hozzáadva a megnyitáskor!');
                 }
             }
         } catch (err) {
-            console.error('[grid-desktop] Hiba a menüpont injektálásakor:', err);
         }
 
         return res;
     };
 
-    console.log('[grid-desktop] AppMenu.open patch sikeresen aktiválva!');
 }
 
 export function disableDashContextMenu() {

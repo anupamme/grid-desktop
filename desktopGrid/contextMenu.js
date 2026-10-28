@@ -9,9 +9,6 @@ import { toggleWidgetResizeHandle } from './widgetEditUtils.js';
 import { onWidgetResized, onWidgetDeleted } from './dragDrop.js';
 import { COLUMNS_COUNT, ROWS_COUNT, getWidgets, supportsSizePresets, SIZE_PRESET_TIERS } from '../utils/widgetUtils.js';
 
-const DEBUG = false;
-const logError = (...args) => { if (DEBUG) console.error(...args); };
-const logWarn = (...args) => { if (DEBUG) console.warn(...args); };
 
 export function createPopupMenuAt(grid, event) {
     if (grid._contextMenuCloseIdleId) {
@@ -89,7 +86,7 @@ export function openPreferences(grid, targetWidgetId = null) {
         const proc = Gio.Subprocess.new(['gnome-extensions', 'prefs', uuid], Gio.SubprocessFlags.NONE);
         proc.wait_async(null, null);
     } catch (e) {
-        logError('Grid-desktop: Hiba a beállítások indításakor:', e);
+
     }
 }
 
@@ -109,7 +106,7 @@ export function launchSettingsPanel(panelName = null) {
             return;
         }
     } catch (e) {
-        logWarn('Grid-desktop: DesktopAppInfo launch failed, falling back to subprocess:', e);
+
     }
 
     // 2. Tartalék megoldás (Subprocess - string argumentumlista)
@@ -118,7 +115,7 @@ export function launchSettingsPanel(panelName = null) {
         const proc = Gio.Subprocess.new(cmd, Gio.SubprocessFlags.NONE);
         proc.wait_async(null, null);
     } catch (err) {
-        logError('Grid-desktop: Failed to launch GNOME Settings:', err);
+
     }
 }
 export function launchFileUri(uri) {
@@ -144,14 +141,14 @@ export function launchFileUri(uri) {
             return;
         }
     } catch (e) {
-        logWarn('Grid-desktop: Hiba az alkalmazás indításakor:', e);
+
     }
 
     try {
         const proc = Gio.Subprocess.new(['gio', 'open', uri], Gio.SubprocessFlags.NONE);
         proc.wait_async(null, null);
     } catch (err) {
-        logError('Grid-desktop: Végzetes hiba az URI megnyitásakor:', err);
+
     }
 }
 
@@ -164,11 +161,11 @@ function trashFile(uri, callback) {
                 file.trash_finish(res);
                 if (callback) callback();
             } catch (err) {
-                logError('Grid-desktop: Hiba a kukába helyezéskor:', err);
+
             }
         });
     } catch (e) {
-        logError('Grid-desktop: Kukába dobás sikertelen:', e);
+
     }
 }
 
@@ -178,7 +175,7 @@ function emptyTrash() {
         const proc = Gio.Subprocess.new(['gio', 'trash', '--empty'], Gio.SubprocessFlags.NONE);
         proc.wait_async(null, null);
     } catch (e) {
-        logError('Grid-desktop: Nem sikerült kiüríteni a kukát:', e);
+
     }
 }
 
@@ -210,14 +207,14 @@ function unmountTargetUri(uri) {
                     try {
                         src.unmount_with_operation_finish(res);
                     } catch (e) {
-                        logError('Grid-desktop: Hiba a kötet leválasztásakor:', e);
+
                     }
                 }
             );
             return;
         }
     } catch (e) {
-        logWarn('Grid-desktop: GIO unmount hiba, próbálkozás CLI-vel:', e);
+
     }
 
     // 2. Tartalék megoldás (gio mount -u URI): ez a Google Drive-val és hálózati megosztásokkal is azonnal működik
@@ -225,7 +222,7 @@ function unmountTargetUri(uri) {
         const proc = Gio.Subprocess.new(['gio', 'mount', '-u', uri], Gio.SubprocessFlags.NONE);
         proc.wait_async(null, null);
     } catch (err) {
-        logError('Grid-desktop: Végzetes hiba a kötet leválasztásakor:', err);
+
     }
 }
 
@@ -252,7 +249,6 @@ function showProperties(uri) {
             }
         );
     } catch (e) {
-        logError('Grid-desktop: Nem sikerült megnyitni a tulajdonságokat:', e);
         launchFileUri(uri);
     }
 }
@@ -451,7 +447,7 @@ function extractImageBasenameFromHtml(htmlText) {
             return altMatch[1].trim();
         }
     } catch (e) {
-        logError('Grid-desktop: Nem sikerült kinyerni a nevet a HTML-ből:', e);
+
     }
     return null;
 }
@@ -475,7 +471,7 @@ function pasteClipboardToDesktop() {
             return;
         }
     } catch (err) {
-        logError('Grid-desktop: Hiba a MIME típusok lekérdezésekor:', err);
+  
     }
 
     _handleTextClipboard();
@@ -531,12 +527,10 @@ function _saveImageFromMutterSelection(selection, mimeType, baseName = null) {
                         sel.transfer_finish(resTransfer);
                         outputStream.close(null);
                     } catch (e) {
-                        logError('Grid-desktop: Hiba a kép adatfolyam másolásakor:', e);
                     }
                 }
             );
         } catch (err) {
-            logError('Grid-desktop: Nem sikerült megnyitni a célfájlt a képhez:', err);
         }
     });
 }
@@ -591,7 +585,6 @@ function saveTextToDesktop(text) {
             null
         );
     } catch (e) {
-        logError('Grid-desktop: Hiba a szöveg mentésekor:', e);
     }
 }
 
@@ -618,7 +611,6 @@ function downloadImageToDesktop(url) {
             try {
                 src.copy_finish(res);
             } catch (e) {
-                logError('Grid-desktop: Hiba a kép letöltésekor:', e);
             }
         }
     );
@@ -642,11 +634,9 @@ function copyLocalFileToDesktop(fileUri) {
                 try {
                     src.copy_finish(res);
                 } catch (e) {
-                    logError('Grid-desktop: Hiba a fájl másolásakor:', e);
                 }
             }
         );
     } catch (e) {
-        logError('Grid-desktop: Hiba a helyi fájl másolásakor:', e);
     }
 }

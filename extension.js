@@ -13,6 +13,8 @@ import { clearMusicPolls } from './widgets/music/index.js';
 import { screenTimeEngine } from './utils/screenTimeEngine.js';
 import { enableDashContextMenu, disableDashContextMenu } from './utils/dashIntegration.js';
 import { clearStorageEngine } from './utils/storageEngine.js';
+import { monitorDesktop, stopMonitor, syncDesktopIcons } from './utils/desktopIcons.js';
+
 
 export default class GridgetsExtension extends Extension {
     enable() {
@@ -46,6 +48,12 @@ export default class GridgetsExtension extends Extension {
         
         this._screenTimeRelease = screenTimeEngine.acquire();
 
+        syncDesktopIcons(this._settings, false);
+        
+        monitorDesktop(this._settings, () => {
+            this._rebuildGrids();
+        });
+        
         this._createAndShowGrids();
 
         this._monitorsChangedIdleId = 0;
@@ -81,6 +89,7 @@ export default class GridgetsExtension extends Extension {
     }
 
     disable() {
+        stopMonitor();
         disableDashContextMenu();
         
         if (this._monitorsChangedTimeoutId > 0) {
