@@ -29,7 +29,6 @@ function skinFilesExist(skinName, fileNames) {
         const filePath = `${currentDir}/skins/${skinName}/${fileName}`;
         const file = Gio.File.new_for_path(filePath);
         if (!file.query_exists(null)) {
-            log(`[Gridgets Clock] Hiányzó kötelező skin fájl: ${filePath}`);
             return false;
         }
     }

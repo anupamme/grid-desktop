@@ -124,7 +124,7 @@ export const DesktopGrid = GObject.registerClass(
                             const proc = Gio.Subprocess.new(['nautilus', desktopPath], Gio.SubprocessFlags.NONE);
                             proc.wait_async(null, null);
                         } catch (e) {
-                            console.error('Gridgets: Hiba a Nautilus indításakor:', e);
+
                         }
                         return Clutter.EVENT_STOP;
                     }

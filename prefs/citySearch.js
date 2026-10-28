@@ -29,7 +29,6 @@ function fetchRemoteCitiesDatabase() {
         session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, (s, res) => {
             try {
                 if (message.get_status() !== 200) {
-                    console.error(`Gridgets: Remote cities database fetch failed with HTTP ${message.get_status()}`);
                     resolve([]);
                     return;
                 }
@@ -41,10 +40,8 @@ function fetchRemoteCitiesDatabase() {
                     resolve(data);
                     return;
                 }
-                console.error('Gridgets: Remote cities database was empty');
                 resolve([]);
             } catch (err) {
-                console.error(`Gridgets: Failed parsing remote cities database: ${err.message}`);
                 resolve([]);
             }
         });
