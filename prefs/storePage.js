@@ -86,8 +86,8 @@ import {
 
 import { STORE_CATEGORIES, STORE_WIDGETS } from './widgetCatalog.js';
 
-const THUMBNAIL_WIDTH = 96;
-const THUMBNAIL_HEIGHT = 64;
+const THUMBNAIL_WIDTH = 120;
+const THUMBNAIL_HEIGHT = 80;
 
 function escapeMarkup(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -112,7 +112,7 @@ function buildRowPrefix(extensionPath, thumbnail, fallbackIconName) {
     } else {
         const icon = new Gtk.Image({
             icon_name: fallbackIconName || 'application-x-executable-symbolic',
-            pixel_size: 32,
+            pixel_size: 40,
             halign: Gtk.Align.CENTER,
             valign: Gtk.Align.CENTER,
         });
