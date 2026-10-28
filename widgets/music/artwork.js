@@ -22,7 +22,14 @@ const activeArtworkDownloads = new Map();
 /** Failed remote-download attempts per URL, so dead URLs are not retried forever by the MPRIS poll. */
 const failedArtworkDownloadAttempts = new Map();
 
-const MUSIC_ART_CACHE_DIR = `${GLib.get_user_cache_dir()}/gridgets/music-art`;
+const MUSIC_ART_CACHE_DIR = GLib.build_filenamev([
+    GLib.get_user_cache_dir(),
+    'grid-desktop',
+    'music-art'
+]);
+const ARTWORK_CACHE_MAX_AGE_SECONDS = 14 * 24 * 60 * 60; // 14 nap
+let cacheCleanupDone = false;
+
 const FILE_ENUM_BATCH_SIZE = 20;
 
 export async function extractDominantColor(filePath) {
@@ -205,6 +212,61 @@ function findLatestModifiedPng(parentDir) {
     });
 }
 
+async function cleanOldArtworkCache() {
+    if (cacheCleanupDone) return;
+    cacheCleanupDone = true;
+
+    const cacheDir = Gio.File.new_for_path(MUSIC_ART_CACHE_DIR);
+    if (!(await fileExists(cacheDir))) return;
+
+    const nowSeconds = GLib.get_real_time() / 1000000;
+    const threshold = nowSeconds - ARTWORK_CACHE_MAX_AGE_SECONDS;
+
+    cacheDir.enumerate_children_async(
+        'standard::name,time::modified',
+        Gio.FileQueryInfoFlags.NONE,
+        GLib.PRIORITY_LOW,
+        null,
+        (source, result) => {
+            let enumerator = null;
+            try {
+                enumerator = source.enumerate_children_finish(result);
+            } catch (_e) {
+                return;
+            }
+
+            const processNextBatch = () => {
+                enumerator.next_files_async(FILE_ENUM_BATCH_SIZE, GLib.PRIORITY_LOW, null, (enumSource, nextResult) => {
+                    let infos = null;
+                    try {
+                        infos = enumSource.next_files_finish(nextResult);
+                    } catch (_e) {
+                        enumerator.close(null);
+                        return;
+                    }
+
+                    if (!infos || infos.length === 0) {
+                        enumerator.close(null);
+                        return;
+                    }
+
+                    for (const info of infos) {
+                        const mtime = info.get_attribute_uint64('time::modified');
+                        if (mtime < threshold) {
+                            const fileToDelete = cacheDir.get_child(info.get_name());
+                            fileToDelete.delete_async(GLib.PRIORITY_LOW, null, null);
+                        }
+                    }
+
+                    processNextBatch();
+                });
+            };
+
+            processNextBatch();
+        }
+    );
+}
+
 function makeDirectory(dir) {
     return new Promise(resolve => {
         dir.make_directory_async(GLib.PRIORITY_DEFAULT, null, (source, result) => {
@@ -277,6 +339,8 @@ export async function ensureLocalArtwork(artUrl, state, callback) {
         callback(null);
         return;
     }
+
+    cleanOldArtworkCache();
 
     if (!artUrl.startsWith('http://') && !artUrl.startsWith('https://')) {
         const localFile = artUrl.startsWith('file://') ? Gio.File.new_for_uri(artUrl) : Gio.File.new_for_path(artUrl);
@@ -374,6 +438,7 @@ export function clearArtworkCaches() {
     for (const cancellable of activeArtworkDownloads.values()) {
         cancellable.cancel();
     }
+    cacheCleanupDone = false;
     activeArtworkDownloads.clear();
     artworkDownloadQueue.clear();
     dominantColorCache.clear();
