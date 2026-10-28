@@ -77,6 +77,7 @@ export const MIN_WIDGET_SIZES = Object.freeze({
     'downloads': { minCols: 5, minRows: 4 },
     'uptime': { minCols: 4, minRows: 2 },
     'updates': { minCols: 2, minRows: 2 },
+    'hardwerinfo': { minCols: 4, minRows: 4 },
 });
 
 /**
@@ -552,6 +553,7 @@ const SIZE_PRESETS = {
     'downloads': [[5, 4], [6, 5], [8, 7]],
     'uptime': [[4, 2], [6, 3], [8, 4]],
     'updates': [[2, 2], [3, 3], [4, 4]],
+    'hardwerinfo': [[4, 4], [5, 5], [6, 6]],
 };
 
 export const FREE_FLOW_SIZE_TYPES = ['image', 'slideshow'];

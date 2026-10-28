@@ -204,6 +204,13 @@ export const STORE_WIDGETS = Object.freeze({
         thumbnail: 'system/updates.svg',
         fallbackIconName: 'software-update-available-symbolic',
     },
+    hardwerinfo: {
+        title: 'Hardwerinfo',
+        description: 'Detailed system and hardware inventory (CPU, GPU, RAM, OS), as well as real-time tracking of connected USB and Thunderbolt devices.',
+        gridSize: '4x4', 
+        thumbnail: 'system/hardwerinfo.svg',
+        fallbackIconName: 'preferences-system-symbolic',
+    },
 
     // ── Focus & Productivity ───────────────────────────────────────────
     pomodoroTimer: {
@@ -458,7 +465,8 @@ export const STORE_CATEGORIES = Object.freeze({
         'lavaLamp',
         'downloads',
         'uptime',
-        'updates'
+        'updates',
+        'hardwerinfo'
 
     ],
 });
@@ -602,6 +610,8 @@ function getStoreWidgetKey(widget) {
             return 'uptime';
         case 'updates':
             return 'updates';
+        case 'hardwerinfo':
+            return 'hardwerinfo';
         default:
             return null;
     }

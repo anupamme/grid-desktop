@@ -15,3 +15,4 @@ export { createPingNode } from './pingWidget.js';
 export { createDownloadsNode } from './downloads.js';
 export { createUptimeNode } from './uptime.js';
 export { createUpdatesNode } from './updates.js';
+export { createHardwareInfoNode } from './hardwerinfo.js';

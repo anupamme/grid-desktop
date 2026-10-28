@@ -29,6 +29,7 @@ import {
     addDownloadsWidget,
     addUptimeWidget,
     addUpdatesWidget,
+    addHardwerInfoWidget,   
 
     // Focus & Productivity
     addClipboardWidget,
@@ -219,6 +220,7 @@ export function buildStorePage(window, settings, extensionPath) {
             items: [
                 // Fő műszerfal és erőforrások
                 def(STORE_WIDGETS.systemDashboard, () => addSystemDashboardWidget(settings, 4, 4)),
+                def(STORE_WIDGETS.hardwerinfo, () => addHardwerInfoWidget(settings)),
                 def(STORE_WIDGETS.systemMonitor, () => addCpuRamWidget(settings, 4, 2)),
                 def(STORE_WIDGETS.systemInfo, () => addSystemInfoWidget(settings, 'cpu', 2, 2)),
                 def(STORE_WIDGETS.resourceWheel, () => addResourceWheelWidget(settings, 'cpu', 5, 4)),
@@ -241,7 +243,6 @@ export function buildStorePage(window, settings, extensionPath) {
                 
                 // Fájlgyorselérés
                 def(STORE_WIDGETS.downloads, () => addDownloadsWidget(settings)),
-                
             ]
         },
         {
