@@ -1,54 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200" width="100%" height="100%">
   <defs>
-    <style>
-      .bg { fill: #212126; }
-      .icon { fill: #ffffff; opacity: 0.95; }
-      .icon-dim { fill: #ffffff; opacity: 0.8; }
-      .text-title { font-family: system-ui, -apple-system, sans-serif; font-size: 13.5px; font-weight: bold; fill: #ffffff; }
-      .text-label { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; font-weight: 600; fill: #ffffff; opacity: 0.9; }
-      .card-bg { fill: rgba(255, 255, 255, 0.06); stroke: rgba(255, 255, 255, 0.12); stroke-width: 1.5; }
-      .card-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; font-weight: bold; fill: #ffffff; opacity: 0.95; }
-      .separator { stroke: rgba(255, 255, 255, 0.15); stroke-width: 1.5; }
-    </style>
+    <!-- Widget kártya háttér és keret stílusok -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181c" />
+      <stop offset="100%" stop-color="#0f0f12" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3" />
+    </filter>
   </defs>
 
-  <!-- Háttér kártya -->
-  <rect width="200" height="200" rx="20" class="bg" />
+  <!-- Widget fő doboz -->
+  <rect x="6" y="6" width="228" height="188" rx="14" fill="url(#bgGrad)" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1.2" />
 
-  <!-- 1. Fejléc: Nagyobb fogaskerék + Vastagabb felirat -->
-  <g transform="translate(16, 20)">
-    <path class="icon" transform="scale(1.2)" d="M7 1a1 1 0 0 0-.9 0.6l-.3 1a5 5 0 0 0-1.2.7l-1-.4a1 1 0 0 0-1.1.4l-1 1.7a1 1 0 0 0 .2 1.2l.8.8a5 5 0 0 0 0 1.4l-.8.8a1 1 0 0 0-.2 1.2l1 1.7a1 1 0 0 0 1.1.4l1-.4a5 5 0 0 0 1.2.7l.3 1a1 1 0 0 0 .9.6h2a1 1 0 0 0 .9-.6l.3-1a5 5 0 0 0 1.2-.7l1 .4a1 1 0 0 0 1.1-.4l1-1.7a1 1 0 0 0-.2-1.2l-.8-.8a5 5 0 0 0 0-1.4l.8-.8a1 1 0 0 0 .2-1.2l-1-1.7a1 1 0 0 0-1.1-.4l-1 .4a5 5 0 0 0-1.2-.7l-.3-1a1 1 0 0 0-.9-.6H7zm1 4.5A2.5 2.5 0 1 1 8 10.5 2.5 2.5 0 0 1 8 5.5z" />
-    <text x="26" y="13" class="text-title">HARDWARE INFO</text>
+  <!-- Fejléc: Ikon + Hardwerinfo felirat -->
+  <g transform="translate(16, 15)">
+    <!-- Switch / Slider stílusú fejléc ikon -->
+    <rect x="0" y="1" width="14" height="8" rx="4" fill="none" stroke="#e0e0e0" stroke-width="1.2" opacity="0.85" />
+    <circle cx="4" cy="5" r="2.2" fill="#e0e0e0" opacity="0.85" />
+    <text x="20" y="9" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700">Hardwerinfo</text>
   </g>
 
-  <!-- 2. CPU sor (Nagyobb méretben) -->
-  <g transform="translate(18, 56)">
-    <path class="icon-dim" transform="scale(1.3)" d="M3.5 0v1.5h1V0h1v1.5h1V0h1v1.5h1V0h1v1.5h.5A2 2 0 0 1 12 3.5V4h1.5v1H12v1h1.5v1H12v1h1.5v1H12v.5a2 2 0 0 1-2 2h-.5V13h-1v-1.5h-1V13h-1v-1.5h-1V13h-1v-1.5H3.5A2 2 0 0 1 1.5 9.5V9H0V8h1.5V7H0V6h1.5V5H0V4h1.5v-.5A2 2 0 0 1 3.5 1.5H4V0h1v1.5h1V0h1v1.5h-.5zm-.5 3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3zm1.5 2h4v3h-4V5z" />
-    <text x="26" y="13" class="text-label">Intel / AMD Core</text>
+  <!-- Görgetősáv (Jobb oldalon) -->
+  <rect x="223" y="36" width="3.5" height="108" rx="1.75" fill="rgba(255, 255, 255, 0.28)" />
+
+  <!-- 1. Kártya: Host Modell -->
+  <g transform="translate(16, 34)">
+    <rect width="202" height="23" rx="5" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.09)" stroke-width="1" />
+    <!-- Kijelző / Computer ikon -->
+    <rect x="8" y="5.5" width="11" height="8" rx="1" fill="none" stroke="#ffffff" stroke-width="1.1" opacity="0.8" />
+    <line x1="11" y1="14.5" x2="16" y2="14.5" stroke="#ffffff" stroke-width="1.1" opacity="0.8" />
+    <text x="26" y="15" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" opacity="0.9">HP EliteBook 850 G7</text>
   </g>
 
-  <!-- 3. RAM sor (Nagyobb méretben) -->
-  <g transform="translate(18, 86)">
-    <path class="icon-dim" transform="scale(1.3)" d="M1 2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H1zm1 2h2v4H2V4zm3 0h2v4H5V4zm3 0h2v4H8V4zm3 0h1.5v4H11V4zm-9 5h1v1H2V9zm2 0h1v1H4V9zm2 0h1v1H6V9zm2 0h1v1H8V9zm2 0h1v1h-1V9z" />
-    <text x="26" y="13" class="text-label">System Memory</text>
+  <!-- 2. Kártya: GPU -->
+  <g transform="translate(16, 61)">
+    <rect width="202" height="23" rx="5" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.09)" stroke-width="1" />
+    <!-- GPU / Display ikon -->
+    <rect x="8" y="5.5" width="11" height="8" rx="1" fill="none" stroke="#ffffff" stroke-width="1.1" opacity="0.8" />
+    <line x1="11" y1="14.5" x2="16" y2="14.5" stroke="#ffffff" stroke-width="1.1" opacity="0.8" />
+    <text x="26" y="15" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" opacity="0.9">Intel Graphics</text>
   </g>
 
-  <!-- 4. OS badge sor -->
-  <g transform="translate(18, 116)">
-    <rect x="0" y="0" width="16" height="16" rx="4" fill="#D70A53" />
-    <path fill="#ffffff" transform="translate(1.5, 1.5) scale(0.9)" d="M6.5 2.5c1.8 0 3.2 1.3 3.3 3 0 1.2-.7 2.2-1.7 2.6-.5.2-.9.2-1.3.1-.3-.1-.5-.3-.5-.6 0-.4.3-.7.7-.7.2 0 .4 0 .6.2.3-.2.5-.5.5-.8 0-.8-.7-1.4-1.6-1.4-.9 0-1.7.7-1.7 1.6 0 .5.2 1 .6 1.3l-.5.6c-.5-.4-.8-1.1-.8-1.9 0-1.4 1.1-2.5 2.5-2.5z" />
-    <text x="26" y="13" class="text-label">Linux Platform</text>
+  <!-- 3. Kártya: CPU -->
+  <g transform="translate(16, 88)">
+    <rect width="202" height="23" rx="5" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.09)" stroke-width="1" />
+    <!-- CPU zöld matrica ikon -->
+    <rect x="8" y="5.5" width="11" height="11" rx="2" fill="#5b9b42" />
+    <rect x="10.5" y="8" width="6" height="6" rx="1" fill="none" stroke="#ffffff" stroke-width="0.8" />
+    <text x="26" y="15" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" opacity="0.9">Intel i5-10310U (4C/8T)</text>
   </g>
 
-  <!-- Elválasztó vonal -->
-  <line x1="16" y1="144" x2="184" y2="144" class="separator" />
+  <!-- 4. Kártya: RAM -->
+  <g transform="translate(16, 115)">
+    <rect width="202" height="23" rx="5" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.09)" stroke-width="1" />
+    <!-- RAM modul ikon -->
+    <rect x="8" y="7" width="12" height="7" rx="1" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+    <line x1="10" y1="12" x2="10" y2="14" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+    <line x1="12" y1="12" x2="12" y2="14" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+    <line x1="14" y1="12" x2="14" y2="14" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+    <line x1="16" y1="12" x2="16" y2="14" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+    <text x="26" y="15" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" opacity="0.9">16 GB RAM</text>
+  </g>
 
-  <!-- 5. Periféria státusz kártya -->
-  <g transform="translate(16, 154)">
-    <rect width="168" height="34" rx="7" class="card-bg" />
-    <g transform="translate(10, 8)">
-      <path class="icon" transform="scale(1.1)" d="M4.5 0A4.5 4.5 0 0 0 0 4.5v8A4.5 4.5 0 0 0 4.5 17 4.5 4.5 0 0 0 9 12.5v-8A4.5 4.5 0 0 0 4.5 0zm-3 4.5A3 3 0 0 1 4 1.53v5.47H1.5V4.5zm6 0V7H5V1.53a3 3 0 0 1 2.5 2.97zM1.5 8.5H7.5v4A3 3 0 0 1 4.5 15.5 3 3 0 0 1 1.5 12.5v-4z" />
-    </g>
-    <text x="32" y="22" class="card-text">USB &amp; Dock Devices</text>
+  <!-- 5. Kártya: OS -->
+  <g transform="translate(16, 142)">
+    <rect width="202" height="23" rx="5" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.09)" stroke-width="1" />
+    <!-- Debian spirál ikon -->
+    <rect x="8" y="6" width="11" height="11" rx="2.5" fill="#d70a53" />
+    <path d="M13.5 8.5 C12 7.5, 10 9, 11 11 C11.5 12, 13 12, 13 13.5 C13 14.5, 11 14.5, 10.5 13.5" fill="none" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" />
+    <text x="26" y="15" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" opacity="0.9">Debian GNU/Linux 13 (trixie)</text>
+  </g>
+
+  <!-- 6. Kártya: Periféria (alsó, félig látszó kártya) -->
+  <g transform="translate(16, 169)">
+    <rect width="202" height="23" rx="5" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.09)" stroke-width="1" opacity="0.7" />
+    <!-- Thunderbolt / Villám ikon -->
+    <path d="M13.5 5.5 L9.5 11 L13 11 L11.5 16.5 L16.5 10 L13 10 Z" fill="#ffffff" opacity="0.8" />
+    <text x="26" y="15" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" opacity="0.7">HP USB-C Dock G5</text>
   </g>
 </svg>

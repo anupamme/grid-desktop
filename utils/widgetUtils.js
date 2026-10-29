@@ -77,7 +77,7 @@ export const MIN_WIDGET_SIZES = Object.freeze({
     'downloads': { minCols: 5, minRows: 4 },
     'uptime': { minCols: 3, minRows: 2 },
     'updates': { minCols: 2, minRows: 2 },
-    'hardwerinfo': { minCols: 4, minRows: 4 },
+    'hardwerinfo': { minCols: 6, minRows: 4 },
 });
 
 /**
@@ -527,7 +527,7 @@ const SIZE_PRESETS = {
     'clipboard': [[4, 4], [5, 5], [6, 6]],
     'quotes': [[4, 4], [5, 5], [6, 6]],
     'screen-time': [[8, 4], [10, 5], [12, 6]],
-    'todo': [[6, 4], [7, 4], [8, 5]],
+    'todo': [[6, 4], [7, 5], [8, 6]],
     'github': [[8, 4], [10, 5], [12, 6]],
     'mood': [[8, 4], [10, 5], [12, 6]],
     'rss-headlines': [[4, 4], [5, 5], [6, 6]],
@@ -553,7 +553,7 @@ const SIZE_PRESETS = {
     'downloads': [[5, 4], [6, 5], [8, 7]],
     'uptime': [[3, 2], [4, 3], [6, 4]],
     'updates': [[2, 2], [3, 3], [4, 4]],
-    'hardwerinfo': [[4, 4], [5, 5], [6, 6]],
+    'hardwerinfo': [[6, 5], [7, 6], [8, 7]],
 };
 
 export const FREE_FLOW_SIZE_TYPES = ['image', 'slideshow'];

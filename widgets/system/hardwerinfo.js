@@ -36,43 +36,33 @@ function readFileContent(path) {
     return null;
 }
 
-//ikonok
-
+// Memória ikon fallback lánccal
 function getRamIcon() {
-    const gicon = Gio.ThemedIcon.new_from_names([
+    return Gio.ThemedIcon.new_from_names([
         'media-memory-symbolic',
         'media-flash-symbolic',
         'drive-harddisk-symbolic'
     ]);
-    return gicon;
 }
 
+// Intelligens USB ikonválasztó
 function getUsbDeviceType(devPath, prodName) {
     const nameLower = (prodName || '').toLowerCase();
 
-    // 1. Dokkoló és Hubok (ha USB-n keresztül látja a rendszer)
     if (nameLower.includes('dock') || nameLower.includes('hub')) {
         return 'thunderbolt-symbolic';
     }
-
-    // 2. Szkenner (név alapján, mert a szkenner osztály mindig 'ff' Vendor Specific!)
     if (nameLower.includes('scan') || nameLower.includes('canoscan')) {
-        return 'scanner-symbolic';
+        return 'document-scan-symbolic';
     }
-
-    // 3. Hálózat / LAN / Ethernet (Realtek, LAN adapterek)
     if (nameLower.includes('lan') || nameLower.includes('ethernet') || nameLower.includes('gigabit') || nameLower.includes('rtl8153')) {
         return 'network-wired-symbolic';
     }
-
-    // 4. Audio (DAC, Hangfal, Mikrofon)
     if (nameLower.includes('audio') || nameLower.includes('sound') || nameLower.includes('codec')) {
         return 'audio-card-symbolic';
     }
-
-    // 5. Kombinált billentyűzet-egér szettek (mint az ASUS W5000 Keyboard Mouse Set!)
     if (nameLower.includes('keyboard') && nameLower.includes('mouse')) {
-        return 'input-keyboard-symbolic'; // Szettnél a billentyűzet a fő profil
+        return 'input-keyboard-symbolic';
     }
     if (nameLower.includes('keyboard') || nameLower.includes('keypad')) {
         return 'input-keyboard-symbolic';
@@ -80,13 +70,10 @@ function getUsbDeviceType(devPath, prodName) {
     if (nameLower.includes('mouse') || nameLower.includes('trackball')) {
         return 'input-mouse-symbolic';
     }
-
-    // 6. Gamepad, kontroller
     if (nameLower.includes('gamepad') || nameLower.includes('controller') || nameLower.includes('joystick')) {
         return 'input-gaming-symbolic';
     }
 
-    // 7. Szabványos USB interfész osztály (bInterfaceClass) ellenőrzése
     try {
         const dir = Gio.File.new_for_path(devPath);
         const enumerator = dir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
@@ -131,19 +118,16 @@ function getHostModel() {
     const vendor = readFileContent('/sys/class/dmi/id/sys_vendor') || '';
     let product = readFileContent('/sys/class/dmi/id/product_name') || '';
 
-    // Ha a product már tartalmazza a vendor nevét, ne duplázza
     if (vendor && product.toLowerCase().startsWith(vendor.toLowerCase())) {
         product = product.slice(vendor.length).trim();
     }
-
-    // "Notebook PC" sallang levágása a végéről, hogy elférjen
     product = product.replace(/Notebook PC/gi, '').trim();
 
     const full = `${vendor} ${product}`.trim();
     return full.length > 0 ? full : 'Computer';
 }
 
-// 2. CPU infó (típus + magszám)
+// 2. GPU infó
 function getGpuInfo() {
     const pciDir = Gio.File.new_for_path('/sys/bus/pci/devices');
     if (!pciDir.query_exists(null)) return 'Unknown GPU';
@@ -172,6 +156,7 @@ function getGpuInfo() {
     return 'Graphics Controller';
 }
 
+// 3. CPU infó
 function getCpuInfo() {
     const cpuinfo = readFileContent('/proc/cpuinfo');
     if (!cpuinfo) return 'Processor';
@@ -193,7 +178,6 @@ function getCpuInfo() {
         }
     }
 
-    // Tisztítás: védjegyek, sallangok törlése a feszes hely miatt
     modelName = modelName
         .replace(/\(R\)|\(TM\)/gi, '')
         .replace(/Core\s+/gi, '')
@@ -207,7 +191,8 @@ function getCpuInfo() {
     const cores = physicalCores.size > 0 ? physicalCores.size : threads;
     return `${modelName} (${cores}C/${threads}T)`;
 }
-// 4. Univerzális RAM méret (GB-ra kerekítve)
+
+// 4. RAM méret
 function getRamInfo() {
     const meminfo = readFileContent('/proc/meminfo');
     if (!meminfo) return 'RAM';
@@ -220,7 +205,7 @@ function getRamInfo() {
     return 'RAM';
 }
 
-// 5. Univerzális OS név
+// 5. Univerzális OS infó
 function getOsInfo() {
     const osRelease = readFileContent('/etc/os-release');
     if (!osRelease) {
@@ -242,7 +227,6 @@ function getOsInfo() {
         }
     }
 
-    // Prioritás: 1. LOGO érték, 2. distributor-logo-<ID>, 3. általános fallback
     let iconName = 'distributor-logo';
     if (logo) {
         iconName = logo.startsWith('distributor-logo-') ? logo : `distributor-logo-${logo}`;
@@ -253,7 +237,7 @@ function getOsInfo() {
     return { name, icon: iconName };
 }
 
-// 6. Thunderbolt perifériák (ha vannak)
+// 6. Thunderbolt perifériák
 function getConnectedThunderboltDevices() {
     const tbDir = Gio.File.new_for_path('/sys/bus/thunderbolt/devices');
     const devices = [];
@@ -265,7 +249,6 @@ function getConnectedThunderboltDevices() {
         let info;
         while ((info = enumerator.next_file(null)) !== null) {
             const devName = info.get_name();
-            // Host kihagyása (0-0), csak a csatlakoztatott eszközök
             if (devName.includes('-') && !devName.endsWith('-0')) {
                 const name = readFileContent(`/sys/bus/thunderbolt/devices/${devName}/device_name`);
                 if (name) devices.push(name);
@@ -275,7 +258,7 @@ function getConnectedThunderboltDevices() {
     return devices;
 }
 
-// 7. Csatlakoztatott USB perifériák (szűrve)
+// 7. USB perifériák
 function getConnectedUsbDevices() {
     const usbDir = Gio.File.new_for_path('/sys/bus/usb/devices');
     const devices = [];
@@ -292,7 +275,7 @@ function getConnectedUsbDevices() {
 
             const devPath = `/sys/bus/usb/devices/${name}`;
             const devClass = readFileContent(`${devPath}/bDeviceClass`);
-            if (devClass === '09') continue; // Hub kihagyása
+            if (devClass === '09') continue;
 
             const prodName = readFileContent(`${devPath}/product`);
             if (prodName) {
@@ -326,7 +309,7 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
     });
     container.add_child(mainLayout);
 
-    // ── Fejléc ──
+    // ── Fejléc (Statikusan "Hardwerinfo") ──
     const headerBox = new St.BoxLayout({
         orientation: Clutter.Orientation.HORIZONTAL,
         x_expand: true,
@@ -337,7 +320,7 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
         y_align: Clutter.ActorAlign.CENTER,
     });
     const headerLabel = new St.Label({
-        text: getHostModel(),
+        text: 'Hardwerinfo',
         y_align: Clutter.ActorAlign.CENTER,
     });
     headerLabel.clutter_text.ellipsize = Pango.EllipsizeMode.END;
@@ -361,9 +344,16 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
     });
     scrollView.set_child(contentBox);
 
-    // Sor gyártó
-    function createRow(iconSource, text) {
-        const row = new St.BoxLayout({
+    // Statikus specifikációk doboza
+    const specsContainer = new St.BoxLayout({
+        orientation: Clutter.Orientation.VERTICAL,
+        x_expand: true,
+    });
+    contentBox.add_child(specsContainer);
+
+    // Kártya létrehozó segédfüggvény
+    function createCard(iconSource, text, isActive = true) {
+        const box = new St.BoxLayout({
             orientation: Clutter.Orientation.HORIZONTAL,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
@@ -383,81 +373,67 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
             y_align: Clutter.ActorAlign.CENTER,
         });
         label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
-        row.add_child(icon);
-        row.add_child(label);
-        return { row, icon, label };
+        box.add_child(icon);
+        box.add_child(label);
+
+        return { box, icon, label, isActive };
     }
 
+    // 1. Fix Hardver Kártyák (Modell, GPU, CPU, RAM, OS)
     const os = getOsInfo();
-    // Fix specifikációk betöltése
-    const staticRows = [
-        createRow('video-display-symbolic', getGpuInfo()),
-        createRow('cpu-symbolic', getCpuInfo()),
-        createRow(getRamIcon(), getRamInfo()),
-        createRow(os.icon, os.name),
+    const staticCardActors = [
+        createCard('computer-symbolic', getHostModel(), true),
+        createCard('video-display-symbolic', getGpuInfo(), true),
+        createCard('cpu-symbolic', getCpuInfo(), true),
+        createCard(getRamIcon(), getRamInfo(), true),
+        createCard(os.icon, os.name, true),
     ];
-    staticRows.forEach(r => contentBox.add_child(r.row));
+    staticCardActors.forEach(c => specsContainer.add_child(c.box));
 
+    // Elválasztó vonal a belső specifikáció és a perifériák között
     const separator = new St.Widget({ x_expand: true });
     contentBox.add_child(separator);
 
-    // Periféria kártya tartó doboz (dinamikusan újratölthető)
+    // 2. Periféria kártya tartó doboz
     const devicesContainer = new St.BoxLayout({
         orientation: Clutter.Orientation.VERTICAL,
         x_expand: true,
     });
     contentBox.add_child(devicesContainer);
 
-    let activeCardActors = [];
+    let dynamicCardActors = [];
 
     function refreshPeripherals() {
         if (isActorDestroyed(container)) return;
         devicesContainer.destroy_all_children();
-        activeCardActors = [];
+        dynamicCardActors = [];
 
-        // 1. Thunderbolt eszközök kezelése (tömbként iterálva)
+        // Thunderbolt eszközök
         const tbDevices = getConnectedThunderboltDevices();
         if (tbDevices.length > 0) {
             for (const tb of tbDevices) {
                 const icon = getThunderboltDeviceIcon(tb);
-                addDeviceCard(icon, String(tb), true);
+                const card = createCard(icon, String(tb), true);
+                devicesContainer.add_child(card.box);
+                dynamicCardActors.push(card);
             }
         }
 
-        // 2. USB eszközök kezelése
+        // USB eszközök
         const usbList = getConnectedUsbDevices();
         if (usbList.length === 0 && tbDevices.length === 0) {
-            addDeviceCard('preferences-desktop-peripherals-symbolic', 'No External Devices', false);
+            const emptyCard = createCard('preferences-desktop-peripherals-symbolic', 'No External Devices', false);
+            devicesContainer.add_child(emptyCard.box);
+            dynamicCardActors.push(emptyCard);
         } else {
             for (const dev of usbList) {
-                addDeviceCard(dev.icon, dev.name, true);
+                const card = createCard(dev.icon, dev.name, true);
+                devicesContainer.add_child(card.box);
+                dynamicCardActors.push(card);
             }
         }
 
         applyScale(scale);
-    }
-
-    function addDeviceCard(iconName, text, isActive) {
-        const box = new St.BoxLayout({
-            orientation: Clutter.Orientation.HORIZONTAL,
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        const icon = new St.Icon({
-            icon_name: iconName,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        const label = new St.Label({
-            text: text,
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
-        box.add_child(icon);
-        box.add_child(label);
-
-        devicesContainer.add_child(box);
-        activeCardActors.push({ box, icon, label, isActive });
     }
 
     function applyScale(newScale) {
@@ -468,23 +444,20 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
         const rowGap = Math.max(3, Math.round(5 * scale));
 
         mainLayout.style = `padding: ${pad}px;`;
-        headerBox.style = `margin-bottom: ${Math.round(6 * scale)}px;`;
+        headerBox.style = `margin-bottom: ${Math.round(8 * scale)}px;`;
         headerIcon.icon_size = Math.round(15 * scale);
         headerIcon.style = `color: ${textColor}; margin-right: 6px;`;
         headerLabel.style = `${fontCss}color: ${textColor}; font-size: ${Math.round(12 * scale)}px; font-weight: bold;`;
 
         contentBox.style = `spacing: ${rowGap}px; padding: 0px 2px;`;
+        specsContainer.style = `spacing: ${rowGap}px;`;
         devicesContainer.style = `spacing: ${rowGap}px;`;
 
-        staticRows.forEach(r => {
-            r.icon.icon_size = iconSize;
-            r.icon.style = `color: ${textColor}; opacity: 0.8; margin-right: 7px;`;
-            r.label.style = `${fontCss}color: ${textColor}; font-size: ${fontSize}px;`;
-        });
+        separator.style = `height: 1px; background-color: ${cardBorder}; margin: ${Math.round(3 * scale)}px 0px;`;
 
-        separator.style = `height: 1px; background-color: ${cardBorder}; margin: 2px 0px;`;
-
-        activeCardActors.forEach(c => {
+        // Minden kártya (statikus és dinamikus) egységes formázása
+        const allCards = [...staticCardActors, ...dynamicCardActors];
+        allCards.forEach(c => {
             const bg = c.isActive ? cardBg : 'transparent';
             const border = c.isActive ? cardBorder : 'transparent';
             const opacity = c.isActive ? '0.9' : '0.5';
@@ -504,7 +477,6 @@ export function createHardwareInfoNode(config, width, height, xPosition, yPositi
         applyScale(Math.min(w / BASE_WIDTH, h / BASE_HEIGHT));
     });
 
-    // 5 másodpercenként frissíti a perifériákat (bedugott egér, leválasztott dokkoló stb.)
     const timerId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
         if (isActorDestroyed(container)) return GLib.SOURCE_REMOVE;
         refreshPeripherals();

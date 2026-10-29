@@ -339,6 +339,6 @@ export function addUpdatesWidget(settings, width = 2, height = 2) {
     addWidget(settings, { id: nextWidgetId(settings, 'updates'), type: 'updates' }, width, height);
 }
 
-export function addHardwerInfoWidget(settings, width = 4, height = 4) {
+export function addHardwerInfoWidget(settings, width = 6, height = 4) {
     addWidget(settings, { id: nextWidgetId(settings, 'hardwerinfo'), type: 'hardwerinfo' }, width, height);
 }

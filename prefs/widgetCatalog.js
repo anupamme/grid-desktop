@@ -207,7 +207,7 @@ export const STORE_WIDGETS = Object.freeze({
     hardwerinfo: {
         title: 'Hardwerinfo',
         description: 'Detailed system and hardware inventory (CPU, GPU, RAM, OS), as well as real-time tracking of connected USB and Thunderbolt devices.',
-        gridSize: '4x4', 
+        gridSize: '6x5', 
         thumbnail: 'system/hardwerinfo.svg',
         fallbackIconName: 'preferences-system-symbolic',
     },
