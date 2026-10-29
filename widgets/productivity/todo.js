@@ -2,39 +2,31 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
-import { SECONDARY_OPACITY, cssColorToRgba, getGridgetsDataDir, loadJsonFromFileAsync, parseCssColor, resolveExplicitFontFamily, resolveTextOnAccentColor, resolveWidgetForegroundColor, saveJsonToFile, saveJsonToFileSync } from '../../utils/widgetUtils.js';
+import { 
+    parseCssColor, 
+    resolveExplicitFontFamily, 
+    resolveWidgetForegroundColor,
+    getGridDesktopDataDir,
+    loadJsonFromFileAsync,
+    saveJsonToFile,
+    saveJsonToFileSync
+} from '../../utils/widgetUtils.js';
 import { createWidgetContainer, registerWidgetCleanup, attachResponsiveScaler, attachButtonFeedback } from '../../shell/widgetUIUtils.js';
 import { isActorDestroyed } from '../../utils/actorLifecycle.js';
 
-const REF_WIDTH_PX = 360;
-const REF_HEIGHT_PX = 170;
-const CONTAINER_PADDING_V_PX = 14;
-const CONTAINER_PADDING_H_PX = 20;
-const LEFT_COLUMN_WIDTH_PX = 90;
-const TITLE_FONT_SIZE_PX = 13;
-const COUNT_FONT_SIZE_PX = 24;
-const ADD_BUTTON_SIZE_PX = 32;
-const TASK_ROW_RADIUS_PX = 12;
-const TASK_ROW_PADDING_V_PX = 9;
-const TASK_ROW_PADDING_H_PX = 14;
-const TASK_TEXT_FONT_SIZE_PX = 13;
-const CHECKBOX_SIZE_PX = 16;
-const ROW_SPACING_PX = 8;
-const COUNTER_ROW_MARGIN_TOP_PX = 6;
-const COUNTER_ROW_SPACING_PX = 8;
-const LIST_ICON_SIZE_PX = 20;
-const ADD_BUTTON_ICON_SIZE_PX = 18;
-const PILL_RADIUS_PX = 9999;
-const TASK_ROW_SPACING_PX = 10;
-const CHECKBOX_BORDER_WIDTH_PX = 1.5;
-const CHECKMARK_ICON_SIZE_PX = 10;
-const DELETE_ICON_SIZE_PX = 13;
-const DELETE_BUTTON_OPACITY = 0.45;
+const REF_WIDTH_PX = 240;
+const REF_HEIGHT_PX = 200;
+const CONTAINER_PADDING_PX = 14;
+const ROW_GAP_PX = 8;
+const ROW_PADDING_V_PX = 8;
+const ROW_PADDING_H_PX = 12;
+const ROW_RADIUS_PX = 14;
+const CHECKBOX_SIZE_PX = 20;
 
 const DEFAULT_TASKS = [
-    { text: 'Make tea', done: false },
-    { text: 'Make cake', done: false },
-    { text: 'Linux os', done: false },
+    { text: 'Workout', done: true },
+    { text: 'Study', done: false },
+    { text: 'Eyedrops', done: true },
 ];
 
 export function createTodoNode(config, width, height, xPosition, yPosition) {
@@ -42,314 +34,306 @@ export function createTodoNode(config, width, height, xPosition, yPosition) {
     const fontCss = fontFamily ? `font-family: ${fontFamily}; ` : '';
     const textColor = resolveWidgetForegroundColor(config);
     const container = createWidgetContainer(config, width, height, xPosition, yPosition);
-    const textRgba = (alpha) => cssColorToRgba(textColor, alpha);
 
+    const textBytes = parseCssColor(textColor);
+    const textRgb = () => `${Math.round(textBytes.r * 255)},${Math.round(textBytes.g * 255)},${Math.round(textBytes.b * 255)}`;
 
-    const accentHex = config.globalAccentColor || '#3584e4';
-    const accent = parseCssColor(accentHex);
-    const accentBytes = `${Math.round(accent.r * 255)},${Math.round(accent.g * 255)},${Math.round(accent.b * 255)}`;
-    const accentStyle = `color: ${accentHex};`;
-    const rowBackgroundStyle = `background-color: rgba(${accentBytes},0.1);`;
-
-    const todosFilePath = GLib.build_filenamev([
-        getGridgetsDataDir('todos'),
-        `todo-${config.id}.json`,
-    ]);
+    const dataDir = getGridDesktopDataDir('todos');
+    const filePath = GLib.build_filenamev([dataDir, `todo-${config.id || 'default'}.json`]);
 
     let tasks = DEFAULT_TASKS.map(task => ({ ...task }));
     let scale = Math.min(width / REF_WIDTH_PX, height / REF_HEIGHT_PX);
     let tasksLoaded = false;
 
-    const state = { entryVisible: false };
+    const state = {
+        isAdding: false
+    };
 
     const mainBox = new St.BoxLayout({
-        orientation: Clutter.Orientation.HORIZONTAL,
+        orientation: Clutter.Orientation.VERTICAL,
         x_expand: true,
         y_expand: true,
     });
     container.add_child(mainBox);
 
-    const leftColumn = new St.BoxLayout({
-        orientation: Clutter.Orientation.VERTICAL,
+    // ── FEJLÉC ──
+    const headerRow = new St.BoxLayout({
+        orientation: Clutter.Orientation.HORIZONTAL,
+        y_align: Clutter.ActorAlign.CENTER,
+        x_expand: true,
     });
-    mainBox.add_child(leftColumn);
+    mainBox.add_child(headerRow);
+
+    const headerIcon = new St.Icon({
+        icon_name: 'checkbox-checked-symbolic',
+        style: `color: ${textColor};`,
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+    headerRow.add_child(headerIcon);
 
     const titleLabel = new St.Label({
-        text: 'Tasks',
-        style: `${fontCss}font-size: ${TITLE_FONT_SIZE_PX}px; `
-            + `font-weight: 700; color: ${textColor}; opacity: ${SECONDARY_OPACITY};`,
-    });
-
-    const counterRow = new St.BoxLayout({
-        orientation: Clutter.Orientation.HORIZONTAL,
-        style: `margin-top: ${COUNTER_ROW_MARGIN_TOP_PX}px; spacing: ${COUNTER_ROW_SPACING_PX}px;`,
-    });
-
-    const listIcon = new St.Icon({
-        icon_name: 'view-list-symbolic',
-        icon_size: LIST_ICON_SIZE_PX,
-        style: accentStyle,
+        text: 'To-Do',
         y_align: Clutter.ActorAlign.CENTER,
     });
+    titleLabel.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
+    headerRow.add_child(titleLabel);
 
-    const countLabel = new St.Label({
-        text: '0',
-        style: `${fontCss}font-size: ${COUNT_FONT_SIZE_PX}px; `
-            + `font-weight: 300; color: ${textColor};`,
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-
-    counterRow.add_child(listIcon);
-    counterRow.add_child(countLabel);
+    headerRow.add_child(new St.Widget({ x_expand: true }));
 
     const addButton = new St.Button({
-        child: new St.Icon({
-            icon_name: 'list-add-symbolic',
-            icon_size: ADD_BUTTON_ICON_SIZE_PX,
-            style: accentStyle,
-        }),
         reactive: true,
         can_focus: true,
-        style_class: 'todo-add-button',
+        y_align: Clutter.ActorAlign.CENTER,
+        child: new St.Icon({ icon_name: 'list-add-symbolic' }),
     });
-
-    leftColumn.add_child(titleLabel);
-    leftColumn.add_child(counterRow);
-    leftColumn.add_child(new St.Widget({ y_expand: true }));
-    leftColumn.add_child(addButton);
     attachButtonFeedback(addButton);
+    headerRow.add_child(addButton);
 
-    const rightColumn = new St.BoxLayout({
-        orientation: Clutter.Orientation.VERTICAL,
-        x_expand: true,
-        y_expand: true,
-        style: `spacing: ${COUNTER_ROW_SPACING_PX}px; padding-left: ${TASK_ROW_PADDING_H_PX}px;`,
-    });
-    mainBox.add_child(rightColumn);
-
-    const scrollView = new St.ScrollView({
-        style_class: 'vfade',
-        x_expand: true,
-        y_expand: true,
-    });
-    scrollView.set_policy(St.PolicyType.NEVER, St.PolicyType.EXTERNAL);
-    rightColumn.add_child(scrollView);
-
-    const taskList = new St.BoxLayout({
-        orientation: Clutter.Orientation.VERTICAL,
-        x_expand: true,
-        style: 'spacing: 8px;',
-    });
-    scrollView.set_child(taskList);
-
-    const entryRow = new St.BoxLayout({
+    // ── INLINE HOZZÁADÁS SOR ──
+    const inlineInputBox = new St.BoxLayout({
         orientation: Clutter.Orientation.HORIZONTAL,
-        x_expand: true,
-        style: rowBackgroundStyle + ` border-radius: ${TASK_ROW_RADIUS_PX}px;`
-            + `padding: ${TASK_ROW_PADDING_V_PX - 3}px ${TASK_ROW_PADDING_H_PX}px;`,
+        y_align: Clutter.ActorAlign.CENTER,
+        visible: false,
     });
+    mainBox.add_child(inlineInputBox);
 
-    const taskEntry = new St.Entry({
+    const entry = new St.Entry({
         hint_text: 'New task…',
         can_focus: true,
         x_expand: true,
     });
-    entryRow.add_child(taskEntry);
-    entryRow.hide();
-    rightColumn.add_child(entryRow);
+    inlineInputBox.add_child(entry);
 
-    const saveTasks = () => saveJsonToFile(todosFilePath, { tasks });
+    const saveAddBtn = new St.Button({
+        reactive: true,
+        can_focus: true,
+        child: new St.Icon({ icon_name: 'emblem-ok-symbolic' }),
+    });
+    attachButtonFeedback(saveAddBtn);
+    inlineInputBox.add_child(saveAddBtn);
 
-    function applyScale(newScale) {
-        scale = newScale;
-        const px = (v) => Math.max(1, Math.round(v * scale));
+    const cancelAddBtn = new St.Button({
+        reactive: true,
+        can_focus: true,
+        child: new St.Icon({ icon_name: 'window-close-symbolic' }),
+    });
+    attachButtonFeedback(cancelAddBtn);
+    inlineInputBox.add_child(cancelAddBtn);
 
-        mainBox.style = `padding: ${px(CONTAINER_PADDING_V_PX)}px ${px(CONTAINER_PADDING_H_PX)}px;`;
-        leftColumn.set_style(`width: ${px(LEFT_COLUMN_WIDTH_PX)}px;`);
-        titleLabel.style = `${fontCss}font-size: ${px(TITLE_FONT_SIZE_PX)}px; `
-            + `font-weight: 700; color: ${textColor}; opacity: ${SECONDARY_OPACITY};`;
-        countLabel.style = `${fontCss}font-size: ${px(COUNT_FONT_SIZE_PX)}px; `
-            + `font-weight: 300; color: ${textColor};`;
-        listIcon.icon_size = px(LIST_ICON_SIZE_PX);
-        addButton.style = rowBackgroundStyle + ` border-radius: ${PILL_RADIUS_PX}px;`
-            + `width: ${px(ADD_BUTTON_SIZE_PX)}px; height: ${px(ADD_BUTTON_SIZE_PX)}px;`;
-        addButton.child.icon_size = px(ADD_BUTTON_ICON_SIZE_PX);
+    // ── GÖRGETHETŐ FELADATLISTA ──
+    const listScroll = new St.ScrollView({
+        hscrollbar_policy: St.PolicyType.NEVER,
+        vscrollbar_policy: St.PolicyType.AUTOMATIC,
+        overlay_scrollbars: false,
+        x_expand: true,
+        y_expand: true,
+    });
+    const listContainer = new St.BoxLayout({
+        orientation: Clutter.Orientation.VERTICAL,
+        x_expand: true,
+    });
+    listScroll.add_child(listContainer);
+    mainBox.add_child(listScroll);
 
-        rightColumn.style = `spacing: ${px(TASK_ROW_SPACING_PX)}px; padding-left: ${px(TASK_ROW_PADDING_H_PX)}px;`;
-        taskList.style = `spacing: ${px(ROW_SPACING_PX)}px;`;
-        entryRow.style = rowBackgroundStyle + ` border-radius: ${px(TASK_ROW_RADIUS_PX)}px;`
-            + `padding: ${Math.max(1, px(TASK_ROW_PADDING_V_PX) - 3)}px ${px(TASK_ROW_PADDING_H_PX)}px;`;
+    const saveTasks = () => saveJsonToFile(filePath, { tasks });
 
-        renderTasks();
-    }
-
-    function renderCounter() {
-        const pendingCount = tasks.filter(task => !task.done).length;
-        countLabel.text = String(pendingCount);
-    }
-
-    function buildTaskRow(task) {
-        const px = (v) => Math.max(1, Math.round(v * scale));
-        const fontSize = px(TASK_TEXT_FONT_SIZE_PX);
-        const checkboxSize = px(CHECKBOX_SIZE_PX);
-
-        const row = new St.BoxLayout({
-            orientation: Clutter.Orientation.HORIZONTAL,
-            x_expand: true,
-            style: rowBackgroundStyle + ` border-radius: ${px(TASK_ROW_RADIUS_PX)}px;`
-                + `padding: ${px(TASK_ROW_PADDING_V_PX)}px ${px(TASK_ROW_PADDING_H_PX)}px;`
-                + `spacing: ${px(TASK_ROW_SPACING_PX)}px;`,
-        });
-
-        const checkbox = new St.Button({
-            reactive: true,
-            can_focus: true,
-            style: task.done
-                ? `background-color: ${accentHex}; border-radius: ${PILL_RADIUS_PX}px;`
-                    + `width: ${checkboxSize}px; height: ${checkboxSize}px;`
-                : `border: ${CHECKBOX_BORDER_WIDTH_PX}px solid ${textRgba(0.35)}; border-radius: ${PILL_RADIUS_PX}px;`
-                    + `width: ${checkboxSize}px; height: ${checkboxSize}px;`,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-
-        if (task.done) {
-            checkbox.child = new St.Icon({
-                icon_name: 'object-select-symbolic',
-                icon_size: px(CHECKMARK_ICON_SIZE_PX),
-                style: `color: ${resolveTextOnAccentColor(accentHex)};`,
-            });
-        }
-
-        const escapedText = GLib.markup_escape_text(task.text || '', -1);
-        const labelText = task.done ? `<s>${escapedText}</s>` : escapedText;
-
-        const textLabel = new St.Label({
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-            style: `${fontCss}font-size: ${fontSize}px;`
-                + `color: ${textColor}; opacity: ${task.done ? 0.5 : 1.0};`,
-        });
-        textLabel.clutter_text.use_markup = true;
-        textLabel.clutter_text.ellipsize = Pango.EllipsizeMode.END;
-        textLabel.clutter_text.set_markup(labelText);
-
-        checkbox.connect('clicked', () => {
-            if (isActorDestroyed(container)) return;
-            task.done = !task.done;
-            saveTasks();
-            renderTasks();
-        });
-
-        const deleteButton = new St.Button({
-            child: new St.Icon({
-                icon_name: 'edit-delete-symbolic',
-                icon_size: px(DELETE_ICON_SIZE_PX),
-            }),
-            reactive: true,
-            can_focus: true,
-            style: `opacity: ${DELETE_BUTTON_OPACITY};`,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        deleteButton.connect('clicked', () => {
-            if (isActorDestroyed(container)) return;
-            const index = tasks.indexOf(task);
-            if (index !== -1)
-                tasks.splice(index, 1);
-            saveTasks();
-            renderTasks();
-        });
-
-        row.add_child(checkbox);
-        row.add_child(textLabel);
-        row.add_child(deleteButton);
-
-        attachButtonFeedback(checkbox);
-        attachButtonFeedback(deleteButton);
-        return row;
-    }
-
-    function renderTasks() {
-        renderCounter();
-
-        taskList.destroy_all_children();
-        if (tasks.length === 0) {
-            const px = (v) => Math.max(1, Math.round(v * scale));
-            const emptyLabel = new St.Label({
-                text: 'No tasks yet — press + to add one',
-                x_align: Clutter.ActorAlign.CENTER,
-                style: `${fontCss}font-size: ${px(TASK_TEXT_FONT_SIZE_PX)}px;`
-                    + `color: ${textColor}; opacity: 0.5;`,
-            });
-            taskList.add_child(emptyLabel);
-            return;
-        }
-
-        tasks.forEach(task => taskList.add_child(buildTaskRow(task)));
-    }
-
-    const showEntry = () => {
-        state.entryVisible = true;
-        entryRow.show();
-        global.stage.set_key_focus(taskEntry);
-    };
-
-    const hideEntry = () => {
-        state.entryVisible = false;
-        taskEntry.text = '';
-        entryRow.hide();
-        if (global.stage.get_key_focus() === taskEntry)
-            global.stage.set_key_focus(null);
-    };
-
-    const commitTask = () => {
-        const text = taskEntry.text.trim();
-        if (text !== '') {
+    function triggerAdd() {
+        const text = entry.get_text().trim();
+        if (text.length > 0) {
             tasks.push({ text, done: false });
             saveTasks();
-            renderTasks();
+            renderRows();
         }
-        hideEntry();
-    };
+        entry.set_text('');
+        state.isAdding = false;
+        inlineInputBox.visible = false;
+        if (global.stage.get_key_focus() === entry) {
+            global.stage.set_key_focus(null);
+        }
+    }
 
     addButton.connect('clicked', () => {
-        if (isActorDestroyed(container)) return;
-        if (state.entryVisible) hideEntry();
-        else showEntry();
+        state.isAdding = !state.isAdding;
+        inlineInputBox.visible = state.isAdding;
+        if (state.isAdding) entry.grab_key_focus();
     });
 
-    taskEntry.clutter_text.connect('key-press-event', (_actor, event) => {
-        const symbol = event.get_key_symbol();
-        if (symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter) {
-            commitTask();
-            return Clutter.EVENT_STOP;
+    saveAddBtn.connect('clicked', triggerAdd);
+    entry.clutter_text.connect('activate', triggerAdd);
+
+    cancelAddBtn.connect('clicked', () => {
+        state.isAdding = false;
+        inlineInputBox.visible = false;
+        entry.set_text('');
+        if (global.stage.get_key_focus() === entry) {
+            global.stage.set_key_focus(null);
         }
+    });
+
+    entry.clutter_text.connect('key-press-event', (_actor, event) => {
+        const symbol = event.get_key_symbol();
         if (symbol === Clutter.KEY_Escape) {
-            hideEntry();
+            state.isAdding = false;
+            inlineInputBox.visible = false;
+            entry.set_text('');
+            global.stage.set_key_focus(null);
             return Clutter.EVENT_STOP;
         }
         return Clutter.EVENT_PROPAGATE;
     });
 
+    function renderRows() {
+        listContainer.destroy_all_children();
+        const px = (v) => Math.max(1, Math.round(v * scale));
+
+        if (tasks.length === 0) {
+            const emptyLabel = new St.Label({
+                text: 'No tasks yet',
+                x_align: Clutter.ActorAlign.CENTER,
+                y_align: Clutter.ActorAlign.CENTER,
+                style: `${fontCss}font-size: ${px(12)}px; color: ${textColor}; opacity: 0.5; margin-top: ${px(20)}px;`,
+            });
+            listContainer.add_child(emptyLabel);
+            return;
+        }
+
+        tasks.forEach((task, idx) => {
+            // Aktív vs elvégzett kártya háttér/átlátszóság
+            const cardBg = task.done ? `rgba(${textRgb()}, 0.04)` : `rgba(${textRgb()}, 0.12)`;
+            const borderCol = task.done ? `rgba(${textRgb()}, 0.08)` : `rgba(${textRgb()}, 0.22)`;
+
+            const row = new St.BoxLayout({
+                orientation: Clutter.Orientation.HORIZONTAL,
+                y_align: Clutter.ActorAlign.CENTER,
+                x_expand: true,
+                style: `background-color: ${cardBg}; `
+                     + `border: 1px solid ${borderCol}; `
+                     + `padding: ${px(ROW_PADDING_V_PX)}px ${px(ROW_PADDING_H_PX)}px; `
+                     + `border-radius: ${px(ROW_RADIUS_PX)}px; `
+                     + `margin-bottom: ${px(ROW_GAP_PX)}px; `
+                     + `margin-right: ${px(4)}px;`
+            });
+
+            // Kör alakú checkbox
+            const checkBtn = new St.Button({
+                reactive: true,
+                can_focus: true,
+                y_align: Clutter.ActorAlign.CENTER,
+                style: `width: ${px(CHECKBOX_SIZE_PX)}px; height: ${px(CHECKBOX_SIZE_PX)}px; `
+                     + `border-radius: 9999px; `
+                     + `background-color: ${task.done ? 'transparent' : 'transparent'}; `
+                     + `border: ${Math.max(1, px(1.5))}px solid rgba(${textRgb()}, ${task.done ? '0.35' : '0.65'}); `
+                     + `margin-right: ${px(10)}px;`
+            });
+
+            if (task.done) {
+                checkBtn.set_child(new St.Icon({
+                    icon_name: 'emblem-ok-symbolic',
+                    icon_size: px(11),
+                    style: `color: ${textColor}; opacity: 0.5;`
+                }));
+            }
+
+            checkBtn.connect('clicked', () => {
+                if (isActorDestroyed(container)) return;
+                task.done = !task.done;
+                saveTasks();
+                renderRows();
+            });
+            attachButtonFeedback(checkBtn);
+            row.add_child(checkBtn);
+
+            // Szöveg formázása
+            const escapedText = GLib.markup_escape_text(task.text || '', -1);
+            const textMarkup = task.done ? `<s>${escapedText}</s>` : escapedText;
+
+            const textLabel = new St.Label({
+                x_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
+                style: `${fontCss}font-size: ${px(13)}px; `
+                     + `color: ${textColor}; opacity: ${task.done ? 0.45 : 0.95}; `
+                     + `font-weight: ${task.done ? 'normal' : '500'};`
+            });
+            textLabel.clutter_text.use_markup = true;
+            textLabel.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+            textLabel.clutter_text.set_markup(textMarkup);
+            row.add_child(textLabel);
+
+            // Törlés gomb
+            const deleteBtn = new St.Button({
+                reactive: true,
+                can_focus: true,
+                y_align: Clutter.ActorAlign.CENTER,
+                style: `padding: ${px(2)}px; border-radius: 9999px; opacity: 0.4;`,
+                child: new St.Icon({
+                    icon_name: 'window-close-symbolic',
+                    icon_size: px(12)
+                })
+            });
+            deleteBtn.connect('clicked', () => {
+                if (isActorDestroyed(container)) return;
+                tasks.splice(idx, 1);
+                saveTasks();
+                renderRows();
+            });
+            attachButtonFeedback(deleteBtn);
+            row.add_child(deleteBtn);
+
+            listContainer.add_child(row);
+        });
+    }
+
+    function applyScale(newScale) {
+        scale = newScale;
+        const px = (v) => Math.max(1, Math.round(v * scale));
+
+        mainBox.style = `padding: ${px(CONTAINER_PADDING_PX)}px; spacing: ${px(8)}px;`;
+
+        const titleFontSize = Math.max(11, Math.round(13 * scale));
+
+        headerRow.style = `margin-bottom: ${px(4)}px;`;
+        headerIcon.icon_size = px(16);
+        headerIcon.style = `color: ${textColor}; margin-right: ${px(6)}px;`;
+
+        titleLabel.style = `${fontCss}font-size: ${titleFontSize}px; font-weight: bold; `
+            + `color: ${textColor}; opacity: 0.9;`;
+
+        addButton.style = `border-radius: 9999px; background-color: rgba(${textRgb()}, 0.12); padding: ${px(4)}px;`;
+        if (addButton.child) addButton.child.icon_size = px(13);
+
+        inlineInputBox.style = `spacing: ${px(6)}px; margin-bottom: ${px(6)}px;`;
+        entry.style = `${fontCss}font-size: ${px(12)}px; padding: ${px(4)}px ${px(8)}px; border-radius: ${px(6)}px;`;
+
+        saveAddBtn.style = `border-radius: 9999px; background-color: rgba(${textRgb()}, 0.15); padding: ${px(4)}px;`;
+        if (saveAddBtn.child) saveAddBtn.child.icon_size = px(12);
+
+        cancelAddBtn.style = `border-radius: 9999px; background-color: rgba(${textRgb()}, 0.1); padding: ${px(4)}px;`;
+        if (cancelAddBtn.child) cancelAddBtn.child.icon_size = px(12);
+
+        renderRows();
+    }
+
+    applyScale(scale);
+
     registerWidgetCleanup(container, () => {
         if (tasksLoaded)
-            saveJsonToFileSync(todosFilePath, { tasks });
-        if (global.stage.get_key_focus() === taskEntry)
+            saveJsonToFileSync(filePath, { tasks });
+        if (global.stage.get_key_focus() === entry)
             global.stage.set_key_focus(null);
     });
 
-    applyScale(scale);
     attachResponsiveScaler(container, REF_WIDTH_PX, REF_HEIGHT_PX, (_ratio, w, h) => {
         if (isActorDestroyed(container)) return;
         applyScale(Math.min(w / REF_WIDTH_PX, h / REF_HEIGHT_PX));
     });
 
-    loadJsonFromFileAsync(todosFilePath, (savedData, loadError) => {
+    loadJsonFromFileAsync(filePath, (savedData, loadError) => {
         if (isActorDestroyed(container)) return;
         tasksLoaded = true;
         if (savedData && Array.isArray(savedData.tasks)) {
-            tasks = savedData.tasks.filter(task => task && typeof task.text === 'string')
-                .map(task => ({ text: task.text, done: !!task.done }));
-            renderTasks();
+            tasks = savedData.tasks.filter(t => t && typeof t.text === 'string')
+                .map(t => ({ text: t.text, done: !!t.done }));
+            renderRows();
         } else if (!loadError) {
             saveTasks();
         }

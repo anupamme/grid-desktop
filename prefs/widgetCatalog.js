@@ -228,10 +228,10 @@ export const STORE_WIDGETS = Object.freeze({
         fallbackIconName: 'alarm-symbolic',
     },
     todoWidget: {
-        title: 'Tasks',
+        title: 'To-do',
         description: 'A to-do list with a pending counter, checkable tasks, and quick add.',
         gridSize: '6x4',
-        thumbnail: 'productivity/tasks.svg',
+        thumbnail: 'productivity/todo.svg',
         fallbackIconName: 'view-list-symbolic',
     },
     quickNotes: {
